@@ -21,7 +21,7 @@ async def generate_content(query):
     system_prompt = load_prompt("content.txt")
     
     response = await client.chat.completions.create(
-        model="gpt-4.1",
+        model="gpt-4-turbo",  # Fixed model name
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": query}
@@ -36,11 +36,14 @@ async def generate_diagram(content_description):
     client = get_client()
     system_prompt = load_prompt("diagram.txt")
     
+    # Pass the content description directly to encourage radial structure
+    user_message = f"Create a radial Mermaid diagram for this content:\n{content_description}"
+    
     response = await client.chat.completions.create(
-        model="gpt-4.1",
+        model="gpt-4-turbo",  # Fixed model name
         messages=[
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Create a Mermaid diagram for: {content_description}"}
+            {"role": "user", "content": user_message}
         ],
         temperature=0.7,
         max_tokens=1500
