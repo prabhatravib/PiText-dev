@@ -29,7 +29,7 @@ flowchart TD
 
 Rules:
 - Use `A((Topic)):::center` for the main topic
-- Use `B("Text<br/>here"):::fact` for each fact
+- To achieve radial distribution: Write the first 2-3 connections with fact nodes first (FactNode <--> CenterNode), then write the remaining connections with the center node first (CenterNode <--> FactNode)
 - Add `<br/>` tags to break long text
 - Connect facts to center with `<-->`
 - Output ONLY the Mermaid code, no explanations
