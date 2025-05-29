@@ -5,13 +5,13 @@ import re
 from src.llm import generate_content, generate_diagram
 from src.renderer import render_mermaid
 
-# ─── Configure logging ─────────────────────────────────────────────────────────
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s"
 )
 
-# ─── Sanitizer: fences, dashes, labels, subgraphs ──────────────────────────────
+# Sanitizer: fences, dashes, labels, subgraphs, and preserve node types
 def sanitize_mermaid(snippet: str) -> str:
     text = snippet.strip()
 
@@ -35,7 +35,18 @@ def sanitize_mermaid(snippet: str) -> str:
             lines.append(f'subgraph {safe_id}["{title}"]')
             continue
 
-        # 4) Quote unquoted labels in NodeID[Label]
+        # 4) Quote unquoted labels in NodeID[Label] but preserve special node types
+        # Skip lines that have (( )) notation for circular nodes
+        if '((' in line and '))' in line:
+            lines.append(line)
+            continue
+        
+        # Skip lines that already have quoted labels with ("...")
+        if '("' in line and '")' in line:
+            lines.append(line)
+            continue
+
+        # Quote unquoted square bracket labels
         def _quote_label(m):
             node, label = m.group(1), m.group(2).strip()
             if label.startswith('"') and label.endswith('"'):
@@ -48,7 +59,7 @@ def sanitize_mermaid(snippet: str) -> str:
 
     return "\n".join(lines)
 
-# ─── Main pipeline ────────────────────────────────────────────────────────────
+# Main pipeline
 async def process_pipeline(query: str) -> dict:
     """
     1) Generate a text description from the LLM
@@ -64,7 +75,7 @@ async def process_pipeline(query: str) -> dict:
     raw_snippet = await generate_diagram(content_description)
     logging.info("🚀 Raw LLM output:\n%s", raw_snippet)
 
-    # ─── SANITIZE ───────────────────────────────────────────────────────────────
+    # SANITIZE
     mermaid_snippet = sanitize_mermaid(raw_snippet)
     logging.info("✔️  Sanitized Mermaid snippet:\n%s", mermaid_snippet)
 
