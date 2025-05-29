@@ -3,28 +3,47 @@
 <head>
   <meta charset="UTF-8" />
   <title>PiText</title>
-
   <!-- 1) Import Mermaid once, disable auto-render -->
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ startOnLoad: false });
     window.mermaid = mermaid;
   </script>
-
   <style>
-    body { font-family: sans-serif; margin: 2rem; }
-    input { padding: 0.5rem; font-size: 1rem; width: 300px; }
-    button { padding: 0.5rem 1rem; font-size: 1rem; }
-    #result { margin-top: 2rem; border: 1px solid #ccc; border-radius: 4px; padding: 1rem; min-height: 200px; }
+    body { 
+      font-family: sans-serif; 
+      margin: 2rem; 
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 2rem;
+    }
+    input { 
+      padding: 0.5rem; 
+      font-size: 1rem; 
+      width: 300px; 
+      margin-right: 0.5rem;
+    }
+    button { 
+      padding: 0.5rem 1rem; 
+      font-size: 1rem; 
+    }
+    #result { 
+      margin-top: 2rem; 
+      border: 1px solid #ccc; 
+      border-radius: 4px; 
+      padding: 1rem; 
+      min-height: 200px; 
+      text-align: left;
+    }
   </style>
 </head>
 <body>
   <h1>Responses, using flow charts!</h1>
   <input id="query" placeholder="Ask anything!" />
   <button onclick="generateDiagram()">Generate</button>
-
+  
   <div id="result">Your diagram will appear here.</div>
-
   <script>
     async function generateDiagram() {
       const query = document.getElementById('query').value.trim();
@@ -34,7 +53,6 @@
         return;
       }
       resultDiv.textContent = 'Generating…';
-
       try {
         const resp = await fetch('/describe', {
           method: 'POST',
@@ -45,8 +63,7 @@
         if (!data.success) {
           throw new Error(data.detail || 'Unknown error');
         }
-
-        // Inject _only_ the snippet into the page
+        // Inject *only* the snippet into the page
         resultDiv.innerHTML = `<div class="mermaid">${data.diagram}</div>`;
         // Render it
         window.mermaid.init(undefined, resultDiv.querySelector('.mermaid'));
