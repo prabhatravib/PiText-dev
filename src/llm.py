@@ -21,7 +21,7 @@ async def generate_content(query):
     system_prompt = load_prompt("content.txt")
     
     response = await client.chat.completions.create(
-        model="gpt-4-turbo",  # Fixed model name
+        model="gpt-4.1",  # Fixed model name
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": query}
