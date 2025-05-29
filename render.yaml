@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: PiText
+    runtime: python
+    buildCommand: |
+      pip install -r requirements.txt &&
+      playwright install chromium --with-deps
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: PORT
+        value: "10000"
+      - key: RENDER_MODE
+        value: html
