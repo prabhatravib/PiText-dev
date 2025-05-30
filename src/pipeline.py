@@ -16,6 +16,9 @@ logging.basicConfig(
 # Sanitizer remains the same
 def sanitize_mermaid(snippet: str) -> str:
     text = snippet.strip()
+    
+    # Decode HTML entities
+    text = text.replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>').replace('&quot;', '"')
 
     # 1) Remove Markdown fences/backticks
     text = re.sub(r'^```(?:mermaid)?\s*', '', text, flags=re.IGNORECASE | re.MULTILINE)
