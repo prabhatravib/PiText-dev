@@ -74,7 +74,7 @@ async def process_pipeline(query: str) -> dict:
 
     logging.info("Stage 3: Generating Mermaid snippet...")
     # Pass both content description and original query
-    raw_snippet = await generate_diagram_with_type(content_description, diagram_type, query)
+    raw_snippet = await generate_diagram_with_type(content_description, query, diagram_type)
     logging.info("🚀 Raw LLM output:\n%s", raw_snippet)
 
     # SANITIZE
