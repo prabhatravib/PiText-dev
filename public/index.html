@@ -225,28 +225,27 @@
           // Extract text from the node
           let nodeText = '';
           
-          // First try to get text from the primary text element
-          const primaryText = this.querySelector('.nodeLabel');
-          if (primaryText) {
-            nodeText = primaryText.textContent.trim();
-          } else {
-            // If no nodeLabel, collect text from all text/tspan elements
-            const textElements = this.querySelectorAll('text, tspan');
-            const textParts = [];
-            
-            textElements.forEach(textEl => {
-              const text = textEl.textContent.trim();
-              if (text) {
-                // Check if this text is already part of a collected text
-                const isSubstring = textParts.some(part => part.includes(text) || text.includes(part));
-                if (!isSubstring) {
-                  textParts.push(text);
-                }
-              }
-            });
-            
-            // Join unique parts
-            nodeText = textParts.join(' ');
+          // Look for text elements in the node
+          const textElement = this.querySelector('text');
+          if (textElement) {
+            // Get all tspan elements (these are individual lines)
+            const tspans = textElement.querySelectorAll('tspan');
+            if (tspans.length > 0) {
+              // Join tspan contents with spaces
+              const lines = Array.from(tspans).map(tspan => tspan.textContent.trim());
+              nodeText = lines.filter(line => line).join(' ');
+            } else {
+              // Fallback to text content
+              nodeText = textElement.textContent.trim();
+            }
+          }
+          
+          // If still no text, try other selectors
+          if (!nodeText) {
+            const nodeLabel = this.querySelector('.nodeLabel');
+            if (nodeLabel) {
+              nodeText = nodeLabel.textContent.trim();
+            }
           }
           
           // Clean up any extra whitespace
