@@ -52,6 +52,44 @@
       backdrop-filter: blur(2px); /* Minimal blur to preserve background */
     }
 
+    /* Selection indicator */
+    .selection-indicator {
+      margin: 1rem auto;
+      padding: 1rem;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      border-radius: 8px;
+      max-width: 600px;
+      display: none;
+      font-size: 14px;
+    }
+
+    .selection-indicator.active {
+      display: block;
+    }
+
+    /* Highlight selected nodes */
+    .node-selected {
+      filter: drop-shadow(0 0 8px rgba(255, 255, 0, 0.8)) !important;
+      stroke: #ffff00 !important;
+      stroke-width: 3px !important;
+    }
+
+    /* Make text elements selectable */
+    .mermaid text {
+      cursor: pointer;
+      user-select: text;
+    }
+
+    .mermaid .nodeLabel {
+      cursor: pointer;
+    }
+
+    /* Hover effect for selectable text */
+    .mermaid g.node:hover {
+      filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.6));
+    }
+
     /* Enhanced arrow visibility styles with white outlines */
     .mermaid .edgePath path,
     .mermaid .flowchart-link,
@@ -138,8 +176,103 @@
   <button onclick="generateDiagram()">Generate</button>
 
   <div id="result">Your diagram will appear here.</div>
+  
+  <!-- Selection indicator -->
+  <div id="selectionIndicator" class="selection-indicator">
+    <strong>Selected:</strong> <span id="selectedText"></span>
+  </div>
 
   <script>
+    let selectedElement = null;
+    let selectedText = '';
+
+    function setupTextSelection(container) {
+      const svg = container.querySelector('svg');
+      if (!svg) return;
+
+      // Find all nodes (they're in g elements with class 'node')
+      const nodes = svg.querySelectorAll('g.node');
+      
+      nodes.forEach(node => {
+        // Make the node clickable
+        node.style.cursor = 'pointer';
+        
+        node.addEventListener('click', function(e) {
+          // Remove previous selection
+          if (selectedElement) {
+            selectedElement.classList.remove('node-selected');
+          }
+          
+          // Add selection to clicked node
+          this.classList.add('node-selected');
+          selectedElement = this;
+          
+          // Extract text from the node
+          const textElements = this.querySelectorAll('text, tspan, .nodeLabel');
+          let nodeText = '';
+          
+          textElements.forEach(textEl => {
+            const text = textEl.textContent.trim();
+            if (text && !nodeText.includes(text)) {
+              nodeText += (nodeText ? ' ' : '') + text;
+            }
+          });
+          
+          // If no text found in standard elements, try the node's title or aria-label
+          if (!nodeText) {
+            const title = this.querySelector('title');
+            if (title) nodeText = title.textContent.trim();
+          }
+          
+          // Update selection indicator
+          selectedText = nodeText;
+          document.getElementById('selectedText').textContent = nodeText;
+          document.getElementById('selectionIndicator').classList.add('active');
+          
+          console.log('Selected node text:', nodeText);
+        });
+      });
+
+      // Also handle edge labels
+      const edgeLabels = svg.querySelectorAll('.edgeLabel');
+      edgeLabels.forEach(label => {
+        label.style.cursor = 'pointer';
+        
+        label.addEventListener('click', function(e) {
+          e.stopPropagation();
+          
+          // Remove previous selection
+          if (selectedElement) {
+            selectedElement.classList.remove('node-selected');
+          }
+          
+          // Add selection to clicked label
+          this.classList.add('node-selected');
+          selectedElement = this;
+          
+          // Extract text
+          const text = this.textContent.trim();
+          selectedText = text;
+          document.getElementById('selectedText').textContent = text;
+          document.getElementById('selectionIndicator').classList.add('active');
+          
+          console.log('Selected edge label:', text);
+        });
+      });
+
+      // Click on empty space to deselect
+      svg.addEventListener('click', function(e) {
+        if (e.target === svg || e.target.tagName === 'rect' && e.target.getAttribute('fill') === 'none') {
+          if (selectedElement) {
+            selectedElement.classList.remove('node-selected');
+            selectedElement = null;
+            selectedText = '';
+            document.getElementById('selectionIndicator').classList.remove('active');
+          }
+        }
+      });
+    }
+
     function forceArrowVisibility(container) {
       // Wait a moment for SVG to be fully rendered
       setTimeout(() => {
@@ -197,6 +330,12 @@
         resultDiv.textContent = 'Please enter a query.';
         return;
       }
+      
+      // Clear any previous selection
+      selectedElement = null;
+      selectedText = '';
+      document.getElementById('selectionIndicator').classList.remove('active');
+      
       resultDiv.textContent = 'Generating…';
       try {
         const resp = await fetch('/describe', {
@@ -217,6 +356,9 @@
           
           // Force all arrows to be visible after rendering
           forceArrowVisibility(resultDiv);
+          
+          // Setup text selection
+          setupTextSelection(resultDiv);
           
           setTimeout(() => {
             const errorElement = resultDiv.querySelector('.mermaidError, [data-mermaid-error], .error');
