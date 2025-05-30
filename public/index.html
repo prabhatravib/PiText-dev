@@ -52,56 +52,54 @@
       backdrop-filter: blur(2px); /* Minimal blur to preserve background */
     }
 
-    /* Ensure all Mermaid arrows are highly visible - more comprehensive targeting */
+    /* Enhanced arrow visibility styles with white outlines */
     .mermaid .edgePath path,
     .mermaid .flowchart-link,
-    .mermaid path.path {
-      stroke: #000000 !important; /* Black arrows */
-      stroke-width: 3px !important; /* Even thicker arrows */
+    .mermaid path.path,
+    .mermaid g.edgePath path,
+    .mermaid g.edgePaths path {
+      stroke: #000000 !important;
+      stroke-width: 4px !important;
       fill: none !important;
+      filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.9)) 
+              drop-shadow(0 0 6px rgba(255, 255, 255, 0.8)) !important;
     }
 
+    /* Enhanced arrowheads with outline */
     .mermaid .arrowheadPath,
     .mermaid .arrowhead path,
-    .mermaid polygon.arrowheadPath {
-      fill: #000000 !important; /* Black arrowheads */
-      stroke: #000000 !important;
-      stroke-width: 1px !important;
-    }
-
-    /* Target all possible arrow markers */
+    .mermaid polygon.arrowheadPath,
     .mermaid marker path,
     .mermaid marker polygon,
     .mermaid defs marker path {
       fill: #000000 !important;
-      stroke: #000000 !important;
+      stroke: #ffffff !important;
+      stroke-width: 2px !important;
+      filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.9)) !important;
     }
 
     /* Target connection lines specifically */
     .mermaid g.edgePath path,
     .mermaid g.edgePaths path {
       stroke: #000000 !important;
-      stroke-width: 3px !important;
+      stroke-width: 4px !important;
     }
 
+    /* Edge labels with stronger background and shadow */
     .mermaid .edgeLabel {
-      background-color: rgba(255, 255, 255, 0.8) !important; /* Less opaque background for edge labels */
-      color: #000000 !important; /* Black text for edge labels */
+      background-color: rgba(255, 255, 255, 0.95) !important;
+      color: #000000 !important;
       border-radius: 3px !important;
-      padding: 2px 4px !important;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
-    }
-
-    /* Additional arrow styling for different arrow types */
-    .mermaid marker path {
-      fill: #000000 !important;
-      stroke: #000000 !important;
+      padding: 4px 8px !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4),
+                  0 0 12px rgba(255, 255, 255, 0.8) !important;
+      font-weight: bold !important;
     }
 
     /* Ensure flowchart connection lines are visible */
     .mermaid .flowchart-link {
       stroke: #000000 !important;
-      stroke-width: 2px !important;
+      stroke-width: 3px !important;
     }
 
     /* Style for any text on paths */
@@ -110,9 +108,26 @@
       font-weight: bold !important;
     }
 
-    /* Add subtle text shadows to node text for better readability */
+    /* Ensure node text remains readable */
     .mermaid text {
       text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8) !important;
+    }
+
+    .mermaid .nodeLabel {
+      filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.9)) !important;
+    }
+
+    /* Additional contrast for the entire diagram */
+    .mermaid svg {
+      filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.5));
+    }
+
+    /* Force all polylines (alternative connection representation) to be black */
+    .mermaid polyline {
+      stroke: #000000 !important;
+      stroke-width: 4px !important;
+      fill: none !important;
+      filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.9)) !important;
     }
   </style>
 </head>
@@ -138,32 +153,37 @@
           const pathData = path.getAttribute('d');
           if (pathData && (pathData.includes('M') && pathData.includes('L'))) {
             path.setAttribute('stroke', '#000000');
-            path.setAttribute('stroke-width', '3');
+            path.setAttribute('stroke-width', '4');
             path.setAttribute('fill', 'none');
+            // Add white outline effect
+            path.style.filter = 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.9))';
           }
         });
         
-        // Force all markers (arrowheads) to be black
+        // Force all markers (arrowheads) to be black with white outline
         const markers = svg.querySelectorAll('marker path, marker polygon');
         markers.forEach(marker => {
           marker.setAttribute('fill', '#000000');
-          marker.setAttribute('stroke', '#000000');
+          marker.setAttribute('stroke', '#ffffff');
+          marker.setAttribute('stroke-width', '2');
         });
         
         // Force all polylines (alternative connection representation) to be black
         const polylines = svg.querySelectorAll('polyline');
         polylines.forEach(polyline => {
           polyline.setAttribute('stroke', '#000000');
-          polyline.setAttribute('stroke-width', '3');
+          polyline.setAttribute('stroke-width', '4');
           polyline.setAttribute('fill', 'none');
+          polyline.style.filter = 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.9))';
         });
         
         // Force edge paths specifically
         const edgePaths = svg.querySelectorAll('g.edgePath path, g.edgePaths path, .edgePath path');
         edgePaths.forEach(edge => {
           edge.setAttribute('stroke', '#000000');
-          edge.setAttribute('stroke-width', '3');
+          edge.setAttribute('stroke-width', '4');
           edge.setAttribute('fill', 'none');
+          edge.style.filter = 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.9))';
         });
         
         console.log('Forced arrow visibility on', paths.length, 'paths and', markers.length, 'markers');
