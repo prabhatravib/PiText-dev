@@ -5,10 +5,19 @@
   <title>PiText</title>
   <!-- 1) Import Mermaid once, disable auto-render -->
   <script type="module">
-    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-    mermaid.initialize({ startOnLoad: false });
-    window.mermaid = mermaid;
-  </script>
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ 
+    startOnLoad: false,
+    errorCallback: function(errorMessage, error) {
+      console.error('Mermaid error:', errorMessage);
+      // Find the error element and replace its content
+      const errorElements = document.querySelectorAll('.mermaidError');
+      errorElements.forEach(el => {
+        el.innerHTML = '<div style="color: #666; font-size: 14px; padding: 20px;">Some issue. Please generate again</div>';
+      });
+  }
+});
+window.mermaid = mermaid;  </script>
   <style>
     body { 
       font-family: sans-serif; 
