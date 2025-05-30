@@ -48,7 +48,45 @@
       min-height: 50vh;
       max-width: 90vw;
       text-align: center;
-      /* keep the default body color for any result text */
+      background-color: rgba(255, 255, 255, 0.95); /* Semi-transparent white background */
+      backdrop-filter: blur(5px); /* Optional: adds blur effect to background */
+    }
+
+    /* Ensure all Mermaid arrows are highly visible */
+    .mermaid .edgePath path {
+      stroke: #000000 !important; /* Black arrows */
+      stroke-width: 2px !important; /* Thicker arrows */
+      fill: none !important;
+    }
+
+    .mermaid .arrowheadPath {
+      fill: #000000 !important; /* Black arrowheads */
+      stroke: #000000 !important;
+    }
+
+    .mermaid .edgeLabel {
+      background-color: rgba(255, 255, 255, 0.9) !important; /* White background for edge labels */
+      color: #000000 !important; /* Black text for edge labels */
+      border-radius: 3px !important;
+      padding: 2px 4px !important;
+    }
+
+    /* Additional arrow styling for different arrow types */
+    .mermaid marker path {
+      fill: #000000 !important;
+      stroke: #000000 !important;
+    }
+
+    /* Ensure flowchart connection lines are visible */
+    .mermaid .flowchart-link {
+      stroke: #000000 !important;
+      stroke-width: 2px !important;
+    }
+
+    /* Style for any text on paths */
+    .mermaid .edgeLabel text {
+      fill: #000000 !important;
+      font-weight: bold !important;
     }
   </style>
 </head>
