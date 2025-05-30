@@ -1,3 +1,19 @@
+# Updated src/pipeline.py
+
+import logging
+import os
+import re
+
+from src.llm import generate_content, select_diagram_type, generate_diagram_with_type
+from src.renderer import render_mermaid
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s"
+)
+
+# Fixed sanitizer
 def sanitize_mermaid(snippet: str) -> str:
     text = snippet.strip()
     
@@ -72,3 +88,38 @@ def sanitize_mermaid(snippet: str) -> str:
         lines.append(line)
 
     return "\n".join(lines)
+
+# Updated main pipeline
+async def process_pipeline(query: str) -> dict:
+    """
+    1) Let LLM select between flowchart or radial mindmap
+    2) Generate a text description
+    3) Generate the appropriate diagram
+    4) Sanitize and render
+    """
+    logging.info("Stage 1: Selecting diagram type...")
+    diagram_type = await select_diagram_type(query)
+    logging.info("Diagram type selected: %s", diagram_type)
+
+    logging.info("Stage 2: Generating content...")
+    content_description = await generate_content(query)
+    logging.info("Content generated: %s", content_description)
+
+    logging.info("Stage 3: Generating Mermaid snippet...")
+    # Pass both content description and original query
+    raw_snippet = await generate_diagram_with_type(content_description, query, diagram_type)
+    logging.info("🚀 Raw LLM output:\n%s", raw_snippet)
+
+    # SANITIZE
+    mermaid_snippet = sanitize_mermaid(raw_snippet)
+    logging.info("✔️  Sanitized Mermaid snippet:\n%s", mermaid_snippet)
+
+    logging.info("Stage 4: Rendering snippet...")
+    render_result = await render_mermaid(mermaid_snippet)
+
+    return {
+        "description": content_description,
+        "diagram_type": diagram_type,
+        "diagram": mermaid_snippet,
+        **render_result
+    }
