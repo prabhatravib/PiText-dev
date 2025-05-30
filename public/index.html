@@ -16,6 +16,7 @@
   <style>
     body {
       background: url("/PiText_background.png") center center / cover no-repeat;
+      color: #f0f0f0;              /* set default text to a pale color */
       font-family: sans-serif;
       margin: 2rem;
       text-align: center;
@@ -23,6 +24,8 @@
 
     h1 {
       margin-bottom: 2rem;
+      color: #ffffff;              /* explicitly white for max contrast */
+      text-shadow: 0 0 8px rgba(0,0,0,0.8);
     }
 
     input {
@@ -45,6 +48,7 @@
       min-height: 50vh;
       max-width: 90vw;
       text-align: center;
+      /* keep the default body color for any result text */
     }
   </style>
 </head>
