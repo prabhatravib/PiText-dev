@@ -79,7 +79,9 @@ Respond with ONLY one word: either "flowchart" or "radial_mindmap"."""
     
     return response.choices[0].message.content.strip()
 
-async def generate_diagram_with_type(content_description, original_query,diagram_type='radial_mindmap'):
+async def generate_diagram_with_type(content_description,
+        original_query=query,
+        diagram_type=diagram_type):
     """
     Generate a diagram based on the selected type.
     """
