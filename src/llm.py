@@ -45,7 +45,7 @@ async def generate_content(query: str) -> str:
     system_prompt = load_prompt("content.txt")
 
     response = await client.chat.completions.create(
-        model="gpt-4-turbo",
+        model="gpt-4.1",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": query},
@@ -72,7 +72,7 @@ Choose between:
 Respond with ONLY one word: "flowchart" or "radial_mindmap"."""
 
     response = await client.chat.completions.create(
-        model="gpt-4-turbo",
+        model="gpt-4.1",
         messages=[
             {"role": "system", "content": selector_prompt},
             {"role": "user", "content": query},
