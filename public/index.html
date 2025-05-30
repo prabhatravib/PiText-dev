@@ -1,13 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-      body {
-      background: url("/PiText_background.png") center center / cover no-repeat;
-    }
-
   <meta charset="UTF-8" />
   <title>PiText</title>
-    <link rel="icon" href="/PiText_favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/PiText_favicon.ico" type="image/x-icon" />
 
   <!-- 1) Import Mermaid once, disable auto-render -->
   <script type="module">
@@ -15,42 +11,51 @@
     mermaid.initialize({ startOnLoad: false });
     window.mermaid = mermaid;
   </script>
+
+  <!-- 2) All your styles, including the background -->
   <style>
-    body { 
-      font-family: sans-serif; 
-      margin: 2rem; 
+    body {
+      background: url("/PiText_background.png") center center / cover no-repeat;
+      font-family: sans-serif;
+      margin: 2rem;
       text-align: center;
     }
+
     h1 {
       margin-bottom: 2rem;
     }
-    input { 
-      padding: 0.5rem; 
-      font-size: 1rem; 
-      width: 300px; 
+
+    input {
+      padding: 0.5rem;
+      font-size: 1rem;
+      width: 300px;
       margin-right: 0.5rem;
     }
-    button { 
-      padding: 0.5rem 1rem; 
-      font-size: 1rem; 
+
+    button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
     }
-#result { 
-  margin: 2rem auto;
-  border: 1px solid #ccc; 
-  border-radius: 4px; 
-  padding: 2rem; 
-  min-height: 50vh;
-  max-width: 90vw;
-  text-align: center;
-}
-</style>
+
+    #result {
+      margin: 2rem auto;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 2rem;
+      min-height: 50vh;
+      max-width: 90vw;
+      text-align: center;
+    }
+  </style>
 </head>
+
 <body>
   <h1>Text Responses, using Pictures!</h1>
   <input id="query" placeholder="Ask anything!" />
   <button onclick="generateDiagram()">Generate</button>
-  
+
   <div id="result">Your diagram will appear here.</div>
+
   <script>
     async function generateDiagram() {
       const query = document.getElementById('query').value.trim();
@@ -70,24 +75,21 @@
         if (!data.success) {
           throw new Error(data.detail || 'Unknown error');
         }
-        // Inject *only* the snippet into the page
+        // Inject only the Mermaid snippet
         resultDiv.innerHTML = `<div class="mermaid">${data.diagram}</div>`;
-        
-        // Render it and check for errors
+
+        // Render it and handle any syntax errors
         try {
           await window.mermaid.init(undefined, resultDiv.querySelector('.mermaid'));
-          
-          // Check if mermaid rendered an error
           setTimeout(() => {
             const errorElement = resultDiv.querySelector('.mermaidError, [data-mermaid-error], .error');
-            const hasErrorText = resultDiv.textContent.includes('Syntax error') || 
-                                resultDiv.textContent.includes('Error');
-            
+            const hasErrorText = resultDiv.textContent.includes('Syntax error') ||
+                                 resultDiv.textContent.includes('Error');
             if (errorElement || hasErrorText) {
               resultDiv.innerHTML = '<div style="color: #666; font-size: 24px; padding: 40px;">Some issue. Please generate again</div>';
             }
           }, 100);
-        } catch (error) {
+        } catch {
           resultDiv.innerHTML = '<div style="color: #666; font-size: 24px; padding: 40px;">Some issue. Please generate again</div>';
         }
       } catch (err) {
