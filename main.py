@@ -9,20 +9,18 @@ import uvicorn
 from src.pipeline import process_pipeline
 
 load_dotenv()
-app = FastAPI
+app = FastAPI()  # <-- instantiate FastAPI
 
-
-
-# 1) CORS
+# 1) CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],     # <-- make sure POST is allowed
+    allow_methods=["*"],     # make sure POST is allowed
     allow_headers=["*"],
 )
 
-# 2) Your API endpoint(s) come _before_ the static mount!
+# 2) Your API endpoints
 class DescribeRequest(BaseModel):
     query: str
 
@@ -40,7 +38,7 @@ async def describe(request: DescribeRequest):
 def health_check():
     return {"message": "LLM Diagram Service is running!"}
 
-# 3) Static mount (last!)
+# 3) Serve static files (index.html, favicon.ico, assets…)
 app.mount("/", StaticFiles(directory="public", html=True), name="static")
 
 if __name__ == "__main__":
