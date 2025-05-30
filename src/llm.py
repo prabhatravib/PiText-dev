@@ -131,6 +131,7 @@ async def generate_diagram(query: str) -> str:
     """
     content_description = await generate_content(query)
     diagram_type = await select_diagram_type(query)
+    print(diagram_type)
     return await generate_diagram_with_type(
         content_description=content_description,
         original_query=query,
