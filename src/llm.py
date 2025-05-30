@@ -68,7 +68,7 @@ Choose between:
 Respond with ONLY one word: either "flowchart" or "radial_mindmap"."""
     
     response = await client.chat.completions.create(
-        model="gpt-4-turbo",
+        model="gpt-4.1",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": f"What diagram type should I use for: {query}"}
@@ -94,7 +94,7 @@ async def generate_diagram_with_type(content_description, diagram_type, original
         user_message = f"Create a radial Mermaid diagram for this content:\n{content_description}"
     
     response = await client.chat.completions.create(
-        model="gpt-4-turbo",
+        model="gpt-4.1",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_message}
@@ -132,7 +132,7 @@ Respond with ONLY one word: either "flowchart" or "radial_mindmap"."""
     
     return response.choices[0].message.content.strip()
 
-async def generate_diagram_with_type(content_description, diagram_type, original_query):
+async def generate_diagram_with_type(content_description, diagram_type='radial_mindmap', original_query):
     """
     Generate a diagram based on the selected type.
     """
