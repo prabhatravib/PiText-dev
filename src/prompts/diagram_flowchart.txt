@@ -17,7 +17,7 @@ Follow this pattern:
     "primaryTextColor": "#000000",
     "primaryBorderColor": "#000000",
     "lineColor": "#eee",
-    "arrowColor": "#000000",
+    "arrowColor": "#eee",
     "edgeLabelBackground": "#ffffff",
     "clusterBkg": "#ffffff",
     "defaultLinkColor": "#eee",
