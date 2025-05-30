@@ -33,5 +33,5 @@ Rules:
 - Add `<br/>` tags to break long text
 - Connect facts to center with `<-->`
 - Output ONLY the Mermaid code, no explanations
-- The colour palette used for the diagram should be relevant to the topic.
+- The colour palette used for the diagram should be relevant to the topic. Do not choose dark colours.
 
