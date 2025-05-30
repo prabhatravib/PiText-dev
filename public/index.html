@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PiText</title>
   <link rel="icon" href="/PiText_favicon.ico" type="image/x-icon" />
 
@@ -66,6 +67,47 @@
 
     .selection-indicator.active {
       display: block;
+    }
+
+    .selection-display {
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .deep-dive-input {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .deep-dive-input input {
+      flex: 1;
+      padding: 0.5rem;
+      font-size: 14px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      border-radius: 4px;
+    }
+
+    .deep-dive-input input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .deep-dive-input button {
+      padding: 0.5rem 1rem;
+      font-size: 14px;
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .deep-dive-input button:hover {
+      background-color: rgba(255, 255, 255, 0.3);
     }
 
     /* Highlight selected nodes */
@@ -187,14 +229,40 @@
 
   <div id="result">Your diagram will appear here.</div>
   
-  <!-- Selection indicator -->
+  <!-- Selection indicator and deep-dive input -->
   <div id="selectionIndicator" class="selection-indicator">
-    <strong>Selected:</strong> <span id="selectedText"></span>
+    <div class="selection-display">
+      <strong>Selected:</strong> <span id="selectedText"></span>
+    </div>
+    <div class="deep-dive-input">
+      <input id="deepDiveQuery" placeholder="Ask about this selection..." />
+      <button onclick="askAboutSelection()">Ask</button>
+    </div>
   </div>
 
   <script>
     let selectedElement = null;
     let selectedText = '';
+
+    async function askAboutSelection() {
+      const deepDiveQuery = document.getElementById('deepDiveQuery').value.trim();
+      
+      if (!deepDiveQuery || !selectedText) {
+        return;
+      }
+      
+      // For Phase 2, just log the query - Phase 3 will implement the actual API call
+      console.log('Deep-dive query:', {
+        selected: selectedText,
+        question: deepDiveQuery
+      });
+      
+      // Clear the input
+      document.getElementById('deepDiveQuery').value = '';
+      
+      // Placeholder for Phase 3 - show where the response will go
+      alert(`You asked: "${deepDiveQuery}" about "${selectedText}"\n\nPhase 3 will send this to the backend!`);
+    }
 
     function setupTextSelection(container) {
       const svg = container.querySelector('svg');
@@ -262,6 +330,9 @@
           document.getElementById('selectedText').textContent = nodeText;
           document.getElementById('selectionIndicator').classList.add('active');
           
+          // Focus the deep-dive input for convenience
+          document.getElementById('deepDiveQuery').focus();
+          
           console.log('Selected node text:', nodeText);
         });
       });
@@ -296,6 +367,9 @@
           document.getElementById('selectedText').textContent = text;
           document.getElementById('selectionIndicator').classList.add('active');
           
+          // Focus the deep-dive input
+          document.getElementById('deepDiveQuery').focus();
+          
           console.log('Selected edge label:', text);
         });
       });
@@ -313,6 +387,7 @@
             selectedElement = null;
             selectedText = '';
             document.getElementById('selectionIndicator').classList.remove('active');
+            document.getElementById('deepDiveQuery').value = '';  // Clear the input
           }
         }
       });
@@ -380,6 +455,7 @@
       selectedElement = null;
       selectedText = '';
       document.getElementById('selectionIndicator').classList.remove('active');
+      document.getElementById('deepDiveQuery').value = '';
       
       resultDiv.textContent = 'Generating…';
       try {
@@ -420,6 +496,13 @@
         resultDiv.textContent = `Error: ${err.message}`;
       }
     }
+
+    // Add Enter key support for deep-dive input
+    document.getElementById('deepDiveQuery').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        askAboutSelection();
+      }
+    });
   </script>
 </body>
 </html>
