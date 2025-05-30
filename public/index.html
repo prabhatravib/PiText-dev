@@ -69,9 +69,17 @@
     }
 
     /* Highlight selected nodes */
-    .node-selected {
-      filter: drop-shadow(0 0 8px rgba(255, 255, 0, 0.8)) !important;
-      stroke: #ffff00 !important;
+    .node-selected text,
+    .node-selected tspan,
+    .node-selected .nodeLabel {
+      font-weight: bold !important;
+      font-size: 15px !important;
+    }
+    
+    .node-selected rect,
+    .node-selected circle,
+    .node-selected ellipse,
+    .node-selected polygon {
       stroke-width: 3px !important;
     }
 
@@ -86,8 +94,10 @@
     }
 
     /* Hover effect for selectable text */
-    .mermaid g.node:hover {
-      filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.6));
+    .mermaid g.node:hover text,
+    .mermaid g.node:hover tspan,
+    .mermaid g.node:hover .nodeLabel {
+      font-weight: 600;
     }
 
     /* Enhanced arrow visibility styles with white outlines */
@@ -201,6 +211,11 @@
           // Remove previous selection
           if (selectedElement) {
             selectedElement.classList.remove('node-selected');
+            // Remove bold from previous edge label if it was one
+            if (selectedElement.classList && selectedElement.classList.contains('edgeLabel')) {
+              const prevText = selectedElement.querySelector('text');
+              if (prevText) prevText.style.fontWeight = 'normal';
+            }
           }
           
           // Add selection to clicked node
@@ -244,10 +259,17 @@
           // Remove previous selection
           if (selectedElement) {
             selectedElement.classList.remove('node-selected');
+            // Remove bold from previous edge label if it was one
+            if (selectedElement.classList.contains('edgeLabel')) {
+              const prevText = selectedElement.querySelector('text');
+              if (prevText) prevText.style.fontWeight = 'normal';
+            }
           }
           
-          // Add selection to clicked label
-          this.classList.add('node-selected');
+          // Bold this edge label's text
+          const labelText = this.querySelector('text');
+          if (labelText) labelText.style.fontWeight = 'bold';
+          
           selectedElement = this;
           
           // Extract text
@@ -265,6 +287,11 @@
         if (e.target === svg || e.target.tagName === 'rect' && e.target.getAttribute('fill') === 'none') {
           if (selectedElement) {
             selectedElement.classList.remove('node-selected');
+            // Remove bold from edge label if it was selected
+            if (selectedElement.classList && selectedElement.classList.contains('edgeLabel')) {
+              const labelText = selectedElement.querySelector('text');
+              if (labelText) labelText.style.fontWeight = 'normal';
+            }
             selectedElement = null;
             selectedText = '';
             document.getElementById('selectionIndicator').classList.remove('active');
