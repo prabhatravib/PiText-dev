@@ -52,16 +52,36 @@
       backdrop-filter: blur(2px); /* Minimal blur to preserve background */
     }
 
-    /* Ensure all Mermaid arrows are highly visible */
-    .mermaid .edgePath path {
+    /* Ensure all Mermaid arrows are highly visible - more comprehensive targeting */
+    .mermaid .edgePath path,
+    .mermaid .flowchart-link,
+    .mermaid path.path {
       stroke: #000000 !important; /* Black arrows */
-      stroke-width: 2px !important; /* Thicker arrows */
+      stroke-width: 3px !important; /* Even thicker arrows */
       fill: none !important;
     }
 
-    .mermaid .arrowheadPath {
+    .mermaid .arrowheadPath,
+    .mermaid .arrowhead path,
+    .mermaid polygon.arrowheadPath {
       fill: #000000 !important; /* Black arrowheads */
       stroke: #000000 !important;
+      stroke-width: 1px !important;
+    }
+
+    /* Target all possible arrow markers */
+    .mermaid marker path,
+    .mermaid marker polygon,
+    .mermaid defs marker path {
+      fill: #000000 !important;
+      stroke: #000000 !important;
+    }
+
+    /* Target connection lines specifically */
+    .mermaid g.edgePath path,
+    .mermaid g.edgePaths path {
+      stroke: #000000 !important;
+      stroke-width: 3px !important;
     }
 
     .mermaid .edgeLabel {
@@ -105,6 +125,51 @@
   <div id="result">Your diagram will appear here.</div>
 
   <script>
+    function forceArrowVisibility(container) {
+      // Wait a moment for SVG to be fully rendered
+      setTimeout(() => {
+        const svg = container.querySelector('svg');
+        if (!svg) return;
+        
+        // Force all path elements (arrows/connections) to be black and thick
+        const paths = svg.querySelectorAll('path');
+        paths.forEach(path => {
+          // Check if this path is likely a connection line (not a node shape)
+          const pathData = path.getAttribute('d');
+          if (pathData && (pathData.includes('M') && pathData.includes('L'))) {
+            path.setAttribute('stroke', '#000000');
+            path.setAttribute('stroke-width', '3');
+            path.setAttribute('fill', 'none');
+          }
+        });
+        
+        // Force all markers (arrowheads) to be black
+        const markers = svg.querySelectorAll('marker path, marker polygon');
+        markers.forEach(marker => {
+          marker.setAttribute('fill', '#000000');
+          marker.setAttribute('stroke', '#000000');
+        });
+        
+        // Force all polylines (alternative connection representation) to be black
+        const polylines = svg.querySelectorAll('polyline');
+        polylines.forEach(polyline => {
+          polyline.setAttribute('stroke', '#000000');
+          polyline.setAttribute('stroke-width', '3');
+          polyline.setAttribute('fill', 'none');
+        });
+        
+        // Force edge paths specifically
+        const edgePaths = svg.querySelectorAll('g.edgePath path, g.edgePaths path, .edgePath path');
+        edgePaths.forEach(edge => {
+          edge.setAttribute('stroke', '#000000');
+          edge.setAttribute('stroke-width', '3');
+          edge.setAttribute('fill', 'none');
+        });
+        
+        console.log('Forced arrow visibility on', paths.length, 'paths and', markers.length, 'markers');
+      }, 50);
+    }
+
     async function generateDiagram() {
       const query = document.getElementById('query').value.trim();
       const resultDiv = document.getElementById('result');
@@ -129,6 +194,10 @@
         // Render it and handle any syntax errors
         try {
           await window.mermaid.init(undefined, resultDiv.querySelector('.mermaid'));
+          
+          // Force all arrows to be visible after rendering
+          forceArrowVisibility(resultDiv);
+          
           setTimeout(() => {
             const errorElement = resultDiv.querySelector('.mermaidError, [data-mermaid-error], .error');
             const hasErrorText = resultDiv.textContent.includes('Syntax error') ||
