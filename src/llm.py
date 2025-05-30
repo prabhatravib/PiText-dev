@@ -65,7 +65,7 @@ async def select_diagram_type(query: str) -> str:
 
     selector_prompt = """You are a diagram-type selector.
 
-Choose between:
+As a response to the below query, Choose which output representation would be best suited, between:
 - flowchart        : sequential steps, how-to, decision logic
 - radial_mindmap   : concept overviews, definitions, characteristics
 
