@@ -37,3 +37,4 @@ Rules:
 - Keep text concise within nodes (use <br/> for line breaks if needed)
 - Focus on the actual steps mentioned in the query
 - Output ONLY the Mermaid code, no explanations
+- Do not choose dark colours
