@@ -225,11 +225,18 @@
           // Extract text from the node
           const textElements = this.querySelectorAll('text, tspan, .nodeLabel');
           let nodeText = '';
+          const processedTexts = new Set();
           
           textElements.forEach(textEl => {
             const text = textEl.textContent.trim();
-            if (text && !nodeText.includes(text)) {
-              nodeText += (nodeText ? ' ' : '') + text;
+            // Skip empty text and already processed text
+            if (text && !processedTexts.has(text)) {
+              processedTexts.add(text);
+              // Add space between text segments
+              if (nodeText) {
+                nodeText += ' ';
+              }
+              nodeText += text;
             }
           });
           
