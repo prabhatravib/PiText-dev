@@ -10,17 +10,19 @@ Follow this pattern:
   "flowchart": { 
     "htmlLabels": false, 
     "curve": "basis",
-    "useMaxWidth": true
+    "useMaxWidth": true,
+    "nodeSpacing": 50,
+    "rankSpacing": 50
   },
   "themeVariables": {
     "primaryColor": "#ffffff",
     "primaryTextColor": "#000000",
     "primaryBorderColor": "#000000",
-    "lineColor": "#eee",
-    "arrowColor": "#eee",
+    "lineColor": "#000000",
+    "arrowheadColor": "#000000",
     "edgeLabelBackground": "#ffffff",
     "clusterBkg": "#ffffff",
-    "defaultLinkColor": "#eee",
+    "defaultLinkColor": "#000000",
     "titleColor": "#000000",
     "edgePath": "#000000",
     "fill0": "#f9f9f9",
@@ -30,42 +32,37 @@ Follow this pattern:
 }}%%
 
 flowchart TD
-    Start([Start])
-    Step1[First Step]
-    Step2[Second Step]
-    Decision{Decision Point?}
-    Step3A[Option A]
-    Step3B[Option B]
-    End([End])
+    Start([Start]):::startEnd
+    Step1[First Step]:::default
+    Step2[Second Step]:::default
+    Decision{Decision Point?}:::decision
+    Step3A[Option A]:::default
+    Step3B[Option B]:::default
+    End([End]):::startEnd
     
-    Start --> Step1
-    Step1 --> Step2
-    Step2 --> Decision
-    Decision -->|Yes| Step3A
-    Decision -->|No| Step3B
-    Step3A --> End
-    Step3B --> End
+    Start ==> Step1
+    Step1 ==> Step2
+    Step2 ==> Decision
+    Decision ==>|Yes| Step3A
+    Decision ==>|No| Step3B
+    Step3A ==> End
+    Step3B ==> End
 
     classDef default fill:#f9f9f9,stroke:#000000,stroke-width:3px,color:#000000
     classDef startEnd fill:#e1f5fe,stroke:#000000,stroke-width:3px,color:#000000
     classDef decision fill:#fff3e0,stroke:#000000,stroke-width:3px,color:#000000
-    
-    class Start,End startEnd
-    class Decision decision
-    
-    linkStyle default stroke:#000000,stroke-width:3px
 ```
 
 Rules:
 - Use `([Start])` and `([End])` for terminal nodes
 - Use `[Step Name]` for process boxes
 - Use `{Question?}` for decision diamonds  
-- Use `-->` for flow direction
-- Use `-->|Label|` for labeled connections
-- Keep text concise within nodes (use <br/> for line breaks if needed)
+- Use `==>` for thick flow arrows (provides better visibility than `-->`)
+- Use `==>|Label|` for labeled connections
+- Apply class names directly to nodes with `:::className` syntax
+- Keep text concise within nodes (use <br> for line breaks if needed)
 - Focus on the actual steps mentioned in the query
 - Output ONLY the Mermaid code, no explanations
-- Always include the themeVariables section to ensure arrows and lines are black
-- Include classDef definitions with thick stroke-width for better visibility
-- Include linkStyle to force arrow appearance
+- Always set lineColor and defaultLinkColor to #000000 for black arrows
+- Use thick stroke-width (3px) for all elements
 - Do not choose dark colours for nodes
