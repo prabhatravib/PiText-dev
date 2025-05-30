@@ -223,22 +223,34 @@
           selectedElement = this;
           
           // Extract text from the node
-          const textElements = this.querySelectorAll('text, tspan, .nodeLabel');
           let nodeText = '';
-          const processedTexts = new Set();
           
-          textElements.forEach(textEl => {
-            const text = textEl.textContent.trim();
-            // Skip empty text and already processed text
-            if (text && !processedTexts.has(text)) {
-              processedTexts.add(text);
-              // Add space between text segments
-              if (nodeText) {
-                nodeText += ' ';
+          // First try to get text from the primary text element
+          const primaryText = this.querySelector('.nodeLabel');
+          if (primaryText) {
+            nodeText = primaryText.textContent.trim();
+          } else {
+            // If no nodeLabel, collect text from all text/tspan elements
+            const textElements = this.querySelectorAll('text, tspan');
+            const textParts = [];
+            
+            textElements.forEach(textEl => {
+              const text = textEl.textContent.trim();
+              if (text) {
+                // Check if this text is already part of a collected text
+                const isSubstring = textParts.some(part => part.includes(text) || text.includes(part));
+                if (!isSubstring) {
+                  textParts.push(text);
+                }
               }
-              nodeText += text;
-            }
-          });
+            });
+            
+            // Join unique parts
+            nodeText = textParts.join(' ');
+          }
+          
+          // Clean up any extra whitespace
+          nodeText = nodeText.replace(/\s+/g, ' ').trim();
           
           // If no text found in standard elements, try the node's title or aria-label
           if (!nodeText) {
