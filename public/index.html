@@ -110,6 +110,41 @@
       background-color: rgba(255, 255, 255, 0.3);
     }
 
+    /* Deep-dive response area */
+    .deep-dive-response {
+      margin: 1rem auto;
+      padding: 1.5rem;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      border-radius: 8px;
+      max-width: 800px;
+      display: none;
+      font-size: 14px;
+      line-height: 1.6;
+      text-align: left;
+    }
+
+    .deep-dive-response.active {
+      display: block;
+    }
+
+    .deep-dive-response h3 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      color: #ffffff;
+      font-size: 16px;
+    }
+
+    .deep-dive-response .question {
+      font-style: italic;
+      margin-bottom: 1rem;
+      opacity: 0.8;
+    }
+
+    .deep-dive-response .answer {
+      white-space: pre-wrap;
+    }
+
     /* Highlight selected nodes */
     .node-selected text,
     .node-selected tspan,
@@ -239,10 +274,14 @@
       <button onclick="askAboutSelection()">Ask</button>
     </div>
   </div>
+  
+  <!-- Deep-dive response area -->
+  <div id="deepDiveResponse" class="deep-dive-response"></div>
 
   <script>
     let selectedElement = null;
     let selectedText = '';
+    let currentQuery = '';  // Store the original query
 
     async function askAboutSelection() {
       const deepDiveQuery = document.getElementById('deepDiveQuery').value.trim();
@@ -251,17 +290,41 @@
         return;
       }
       
-      // For Phase 2, just log the query - Phase 3 will implement the actual API call
-      console.log('Deep-dive query:', {
-        selected: selectedText,
-        question: deepDiveQuery
-      });
+      // Show loading state
+      const responseDiv = document.getElementById('deepDiveResponse');
+      responseDiv.innerHTML = '<div>Thinking...</div>';
+      responseDiv.classList.add('active');
       
-      // Clear the input
-      document.getElementById('deepDiveQuery').value = '';
-      
-      // Placeholder for Phase 3 - show where the response will go
-      alert(`You asked: "${deepDiveQuery}" about "${selectedText}"\n\nPhase 3 will send this to the backend!`);
+      try {
+        const resp = await fetch('/deep-dive', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            selected_text: selectedText,
+            question: deepDiveQuery,
+            original_query: currentQuery
+          })
+        });
+        
+        const data = await resp.json();
+        
+        if (!data.success) {
+          throw new Error(data.detail || 'Unknown error');
+        }
+        
+        // Display the response
+        responseDiv.innerHTML = `
+          <h3>Deep Dive: ${selectedText}</h3>
+          <div class="question">Q: ${deepDiveQuery}</div>
+          <div class="answer">${data.response}</div>
+        `;
+        
+        // Clear the input
+        document.getElementById('deepDiveQuery').value = '';
+        
+      } catch (err) {
+        responseDiv.innerHTML = `<div style="color: #ff6b6b;">Error: ${err.message}</div>`;
+      }
     }
 
     function setupTextSelection(container) {
@@ -388,6 +451,7 @@
             selectedText = '';
             document.getElementById('selectionIndicator').classList.remove('active');
             document.getElementById('deepDiveQuery').value = '';  // Clear the input
+            document.getElementById('deepDiveResponse').classList.remove('active');  // Hide response
           }
         }
       });
@@ -451,11 +515,15 @@
         return;
       }
       
-      // Clear any previous selection
+      // Store the current query for deep-dive context
+      currentQuery = query;
+      
+      // Clear any previous selection and responses
       selectedElement = null;
       selectedText = '';
       document.getElementById('selectionIndicator').classList.remove('active');
       document.getElementById('deepDiveQuery').value = '';
+      document.getElementById('deepDiveResponse').classList.remove('active');
       
       resultDiv.textContent = 'Generating…';
       try {
