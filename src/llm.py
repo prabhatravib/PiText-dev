@@ -119,8 +119,38 @@ async def generate_diagram_with_type(
     return response.choices[0].message.content
 
 
+async def generate_deep_dive_response(
+    selected_text: str,
+    question: str,
+    original_query: str = ""
+) -> str:
+    """
+    Generate a contextual response for a deep-dive question about selected text.
+    """
+    client = get_client()
+    system_prompt = load_prompt("deep_dive.txt")
+    
+    user_message = f"""Selected text from diagram: "{selected_text}"
+
+User's question: {question}"""
+    
+    if original_query:
+        user_message += f"\n\nOriginal query that generated the diagram: {original_query}"
+    
+    response = await client.chat.completions.create(
+        model="gpt-4.1",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_message},
+        ],
+        temperature=0.7,
+        max_tokens=500,
+    )
+    return response.choices[0].message.content
+
+
 # --------------------------------------------------------------------------- #
-# Convenience “all-in-one” helper
+# Convenience "all-in-one" helper
 # --------------------------------------------------------------------------- #
 
 async def generate_diagram(query: str) -> str:
