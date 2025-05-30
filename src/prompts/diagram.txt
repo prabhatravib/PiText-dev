@@ -18,7 +18,14 @@ Follow this exact pattern:
     "primaryBorderColor": "#000000",
     "lineColor": "#000000",
     "arrowColor": "#000000",
-    "edgeLabelBackground": "#ffffff"
+    "edgeLabelBackground": "#ffffff",
+    "clusterBkg": "#ffffff",
+    "defaultLinkColor": "#000000",
+    "titleColor": "#000000",
+    "edgePath": "#000000",
+    "fill0": "#f9f9f9",
+    "fill1": "#f9f9f9",
+    "fill2": "#f9f9f9"
   }
 }}%%
 
