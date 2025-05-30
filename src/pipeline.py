@@ -1,8 +1,10 @@
+# Updated src/pipeline.py
+
 import logging
 import os
 import re
 
-from src.llm import generate_content, generate_diagram
+from src.llm import generate_content, select_diagram_type, generate_diagram_with_type
 from src.renderer import render_mermaid
 
 # Configure logging
@@ -11,7 +13,7 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s"
 )
 
-# Sanitizer: fences, dashes, labels, subgraphs, and preserve node types
+# Sanitizer remains the same
 def sanitize_mermaid(snippet: str) -> str:
     text = snippet.strip()
 
@@ -28,25 +30,20 @@ def sanitize_mermaid(snippet: str) -> str:
 
         # 3) Rewrite any `subgraph X Y Z` into a safe id + quoted title
         if stripped.lower().startswith("subgraph"):
-            # get everything after the word "subgraph"
             title = stripped[len("subgraph"):].strip()
-            # generate a safe ID by replacing non-alphanumerics with underscore
             safe_id = re.sub(r'[^0-9A-Za-z_]', '_', title)
             lines.append(f'subgraph {safe_id}["{title}"]')
             continue
 
         # 4) Quote unquoted labels in NodeID[Label] but preserve special node types
-        # Skip lines that have (( )) notation for circular nodes
         if '((' in line and '))' in line:
             lines.append(line)
             continue
         
-        # Skip lines that already have quoted labels with ("...")
         if '("' in line and '")' in line:
             lines.append(line)
             continue
 
-        # Quote unquoted square bracket labels
         def _quote_label(m):
             node, label = m.group(1), m.group(2).strip()
             if label.startswith('"') and label.endswith('"'):
@@ -59,31 +56,37 @@ def sanitize_mermaid(snippet: str) -> str:
 
     return "\n".join(lines)
 
-# Main pipeline
+# Updated main pipeline
 async def process_pipeline(query: str) -> dict:
     """
-    1) Generate a text description from the LLM
-    2) Generate a raw Mermaid snippet via the LLM
-    3) Sanitize (strip fences, normalize dashes, quote labels, fix subgraphs)
-    4) Render the clean snippet into HTML or an image
+    1) Let LLM select between flowchart or radial mindmap
+    2) Generate a text description
+    3) Generate the appropriate diagram
+    4) Sanitize and render
     """
-    logging.info("Stage 1: Generating content...")
+    logging.info("Stage 1: Selecting diagram type...")
+    diagram_type = await select_diagram_type(query)
+    logging.info("Diagram type selected: %s", diagram_type)
+
+    logging.info("Stage 2: Generating content...")
     content_description = await generate_content(query)
     logging.info("Content generated: %s", content_description)
 
-    logging.info("Stage 2: Generating Mermaid snippet...")
-    raw_snippet = await generate_diagram(content_description)
+    logging.info("Stage 3: Generating Mermaid snippet...")
+    # Pass both content description and original query
+    raw_snippet = await generate_diagram_with_type(content_description, diagram_type, query)
     logging.info("🚀 Raw LLM output:\n%s", raw_snippet)
 
     # SANITIZE
     mermaid_snippet = sanitize_mermaid(raw_snippet)
     logging.info("✔️  Sanitized Mermaid snippet:\n%s", mermaid_snippet)
 
-    logging.info("Stage 3: Rendering snippet...")
+    logging.info("Stage 4: Rendering snippet...")
     render_result = await render_mermaid(mermaid_snippet)
 
     return {
         "description": content_description,
+        "diagram_type": diagram_type,
         "diagram": mermaid_snippet,
         **render_result
     }
