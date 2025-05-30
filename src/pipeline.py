@@ -26,31 +26,58 @@ def sanitize_mermaid(snippet: str) -> str:
 
     # 2) Normalize all dashes to plain hyphens
     text = text.replace('–', '-').replace('—', '-')
+    
+    # 3) Fix <br/> to <br> (Mermaid prefers without slash)
+    text = text.replace('<br/>', '<br>')
 
     lines = []
     for line in text.splitlines():
         stripped = line.strip()
 
-        # 3) Rewrite any `subgraph X Y Z` into a safe id + quoted title
+        # 4) Rewrite any `subgraph X Y Z` into a safe id + quoted title
         if stripped.lower().startswith("subgraph"):
             title = stripped[len("subgraph"):].strip()
             safe_id = re.sub(r'[^0-9A-Za-z_]', '_', title)
             lines.append(f'subgraph {safe_id}["{title}"]')
             continue
 
-        # 4) Quote unquoted labels in NodeID[Label] but preserve special node types
-        if '((' in line and '))' in line:
-            lines.append(line)
+        # 5) Fix nodes with parentheses syntax - extract and clean the content
+        paren_match = re.match(r'(\w+)\("([^"]+)"\)(.*)$', stripped)
+        if paren_match:
+            node_id = paren_match.group(1)
+            content = paren_match.group(2)
+            rest = paren_match.group(3)
+            # Replace inner quotes with single quotes
+            content = content.replace('"', "'")
+            lines.append(f'{node_id}["{content}"]{rest}')
             continue
-        
-        if '("' in line and '")' in line:
+
+        # 6) Fix square bracket nodes - handle nested quotes
+        bracket_match = re.match(r'(\w+)\["([^"]+)"\](.*)$', stripped)
+        if bracket_match:
+            node_id = bracket_match.group(1)
+            content = bracket_match.group(2)
+            rest = bracket_match.group(3)
+            # Replace inner quotes with single quotes
+            content = content.replace('"', "'")
+            lines.append(f'{node_id}["{content}"]{rest}')
+            continue
+            
+        # 7) Handle special node types (keep unchanged)
+        if '((' in line and '))' in line:
+            # For circular nodes, also fix any quotes in the content
+            line = re.sub(r'\(\(([^)]+)\)\)', lambda m: f'(({m.group(1).replace('"', "'")}))', line)
             lines.append(line)
             continue
 
+        # 8) General quote fixing for any remaining cases
         def _quote_label(m):
             node, label = m.group(1), m.group(2).strip()
+            # Clean up the label - remove outer quotes if present
             if label.startswith('"') and label.endswith('"'):
-                return f'{node}[{label}]'
+                label = label[1:-1]
+            # Replace any inner quotes with single quotes
+            label = label.replace('"', "'")
             return f'{node}["{label}"]'
 
         line = re.sub(r'(\b[^\s\[\]]+)\[([^\]]+)\]', _quote_label, line)
@@ -58,7 +85,7 @@ def sanitize_mermaid(snippet: str) -> str:
         lines.append(line)
 
     return "\n".join(lines)
-
+    
 # Updated main pipeline
 async def process_pipeline(query: str) -> dict:
     """
