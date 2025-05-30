@@ -78,11 +78,11 @@
                                 resultDiv.textContent.includes('Error');
             
             if (errorElement || hasErrorText) {
-              resultDiv.innerHTML = '<div style="color: #666; font-size: 14px; padding: 40px;">Some issue. Please generate again</div>';
+              resultDiv.innerHTML = '<div style="color: #666; font-size: 24px; padding: 40px;">Some issue. Please generate again</div>';
             }
           }, 100);
         } catch (error) {
-          resultDiv.innerHTML = '<div style="color: #666; font-size: 14px; padding: 40px;">Some issue. Please generate again</div>';
+          resultDiv.innerHTML = '<div style="color: #666; font-size: 24px; padding: 40px;">Some issue. Please generate again</div>';
         }
       } catch (err) {
         resultDiv.textContent = `Error: ${err.message}`;
