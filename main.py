@@ -9,7 +9,9 @@ import uvicorn
 from src.pipeline import process_pipeline
 
 load_dotenv()
-app = FastAPI()
+app = FastAPI
+
+
 
 # 1) CORS
 app.add_middleware(
