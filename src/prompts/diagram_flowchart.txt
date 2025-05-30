@@ -7,7 +7,19 @@ Follow this pattern:
   "theme": "base",
   "fontFamily": "Arial, sans-serif",
   "fontSize": "14px",
-  "flowchart": { "htmlLabels": false, "curve": "basis" }
+  "flowchart": { 
+    "htmlLabels": false, 
+    "curve": "basis",
+    "useMaxWidth": true
+  },
+  "themeVariables": {
+    "primaryColor": "#ffffff",
+    "primaryTextColor": "#000000",
+    "primaryBorderColor": "#000000",
+    "lineColor": "#000000",
+    "arrowColor": "#000000",
+    "edgeLabelBackground": "#ffffff"
+  }
 }}%%
 
 flowchart TD
@@ -26,6 +38,13 @@ flowchart TD
     Decision -->|No| Step3B
     Step3A --> End
     Step3B --> End
+
+    classDef default fill:#f9f9f9,stroke:#000000,stroke-width:2px,color:#000000
+    classDef startEnd fill:#e1f5fe,stroke:#000000,stroke-width:2px,color:#000000
+    classDef decision fill:#fff3e0,stroke:#000000,stroke-width:2px,color:#000000
+    
+    class Start,End startEnd
+    class Decision decision
 ```
 
 Rules:
@@ -37,4 +56,6 @@ Rules:
 - Keep text concise within nodes (use <br/> for line breaks if needed)
 - Focus on the actual steps mentioned in the query
 - Output ONLY the Mermaid code, no explanations
-- Do not choose dark colours
+- Always include the themeVariables section to ensure arrows and lines are black
+- Include classDef definitions to ensure proper contrast
+- Do not choose dark colours for nodes
