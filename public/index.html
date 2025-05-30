@@ -42,14 +42,14 @@
 
     #result {
       margin: 2rem auto;
-      border: 1px solid #ccc;
+      border: 1px solid rgba(255, 255, 255, 0.3);
       border-radius: 4px;
       padding: 2rem;
       min-height: 50vh;
       max-width: 90vw;
       text-align: center;
-      background-color: rgba(255, 255, 255, 0.95); /* Semi-transparent white background */
-      backdrop-filter: blur(5px); /* Optional: adds blur effect to background */
+      background-color: rgba(255, 255, 255, 0.1); /* Very subtle white overlay */
+      backdrop-filter: blur(2px); /* Minimal blur to preserve background */
     }
 
     /* Ensure all Mermaid arrows are highly visible */
@@ -65,10 +65,11 @@
     }
 
     .mermaid .edgeLabel {
-      background-color: rgba(255, 255, 255, 0.9) !important; /* White background for edge labels */
+      background-color: rgba(255, 255, 255, 0.8) !important; /* Less opaque background for edge labels */
       color: #000000 !important; /* Black text for edge labels */
       border-radius: 3px !important;
       padding: 2px 4px !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
     }
 
     /* Additional arrow styling for different arrow types */
@@ -87,6 +88,11 @@
     .mermaid .edgeLabel text {
       fill: #000000 !important;
       font-weight: bold !important;
+    }
+
+    /* Add subtle text shadows to node text for better readability */
+    .mermaid text {
+      text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8) !important;
     }
   </style>
 </head>
