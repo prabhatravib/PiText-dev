@@ -2,7 +2,6 @@
 
 /**
  * Once a Mermaid diagram is rendered inside `diagramHost`,
- * prepend “Copy” and “Save PNG” buttons for convenience.
  */
 export function addDiagramUtilities(diagramHost) {
   if (!diagramHost || diagramHost.querySelector('.diagram-utils')) return;
@@ -36,11 +35,11 @@ export function addDiagramUtilities(diagramHost) {
       vbW = viewBox[2];
       vbH = viewBox[3];
     } else {
-      // Fallback: use SVG’s bounding box
+      // Fallback: use SVG's bounding box
       const bbox = svg.getBBox();
       vbW = bbox.width;
       vbH = bbox.height;
-      clone.setAttribute('viewBox', \`0 0 \${vbW} \${vbH}\`);
+      clone.setAttribute('viewBox', `0 0 ${vbW} ${vbH}`);
     }
 
     // 2) Upscale (e.g. 4×)

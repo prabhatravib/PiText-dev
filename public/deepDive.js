@@ -57,14 +57,14 @@ export async function askAboutSelection() {
     const data = await r.json();
     if (!data.success) throw new Error(data.detail || 'Unknown error');
 
-    respDiv.innerHTML = \`
-      <h3>Deep Dive: \${state.selectedText}</h3>
-      <div class="question">Q: \${q}</div>
-      <div class="answer">\${data.response}</div>
-    \`;
+    respDiv.innerHTML = `
+      <h3>Deep Dive: ${state.selectedText}</h3>
+      <div class="question">Q: ${q}</div>
+      <div class="answer">${data.response}</div>
+    `;
     addDeepDiveUtilities(respDiv);
     document.getElementById('deepDiveQuery').value = '';
   } catch (err) {
-    respDiv.innerHTML = \`<div style="color:#ff6b6b;">Error: \${err.message}</div>\`;
+    respDiv.innerHTML = `<div style="color:#ff6b6b;">Error: ${err.message}</div>`;
   }
 }

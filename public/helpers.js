@@ -1,16 +1,16 @@
 // helpers.js
 
 /**
- * Replace the container’s contents with a generic “Something went wrong” UI.
+ * Replace the container's contents with a generic "Something went wrong" UI.
  */
 export function showErrorMessage(container) {
-  container.innerHTML = \`
+  container.innerHTML = `
     <div class="error-message">
       <div class="error-icon">⚠️</div>
       <div class="error-text">Something went wrong. Please generate again.</div>
       <button class="retry-btn" onclick="window.generateDiagram()">Retry</button>
     </div>
-  \`;
+  `;
 }
 
 /**
@@ -63,7 +63,7 @@ export function forceArrowVisibility(container) {
 }
 
 /**
- * Decode HTML entities from a string (e.g., “&lt;” → “<”).
+ * Decode HTML entities from a string (e.g., "&lt;" → "<").
  */
 export function decodeHTMLEntities(text) {
   const ta = document.createElement('textarea');
