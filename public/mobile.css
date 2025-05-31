@@ -1,0 +1,227 @@
+/* ---- Mobile-specific styles for PiText ---- */
+/* This file contains only mobile optimizations */
+/* Load after styles.css to override desktop styles */
+
+/* ---- iPhone Safe Areas ---- */
+@supports (padding: max(0px)) {
+  body {
+    padding-top: max(20px, env(safe-area-inset-top));
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
+  }
+}
+
+/* ---- Mobile Layout Adjustments ---- */
+@media (max-width: 768px) {
+  body {
+    margin: 0;
+    background-size: cover;
+    background-attachment: scroll; /* Fixed backgrounds perform poorly on iOS */
+  }
+
+  h1 {
+    font-size: 1.75rem;
+    margin: 1rem 0;
+    padding: 0 1rem;
+  }
+
+  /* ---- Input Area ---- */
+  .input-area {
+    flex-direction: column;
+    padding: 0 1rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  input#query {
+    width: 100%;
+    max-width: none;
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 0.75rem;
+    margin: 0 0 0.5rem 0;
+  }
+
+  button {
+    width: 100%;
+    max-width: 400px;
+    min-height: 44px; /* iOS touch target */
+    font-size: 16px;
+    margin: 0;
+  }
+
+  /* ---- Result Container ---- */
+  #result {
+    margin: 1rem;
+    padding: 1rem;
+    min-height: 50vh;
+    max-height: 70vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ---- Mermaid Diagram Responsive ---- */
+  .mermaid {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+  }
+
+  .mermaid svg {
+    max-width: none !important;
+    height: auto !important;
+    min-width: 100%;
+  }
+
+  /* ---- Selection Indicator ---- */
+  .selection-indicator {
+    margin: 1rem;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+    border-radius: 16px 16px 0 0;
+    padding: 1rem 1rem 2rem;
+    max-height: 50vh;
+    overflow-y: auto;
+    z-index: 100;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+  }
+
+  .deep-dive-input {
+    flex-direction: column;
+  }
+
+  .deep-dive-input input,
+  .deep-dive-input button {
+    width: 100%;
+    font-size: 16px;
+  }
+
+  /* ---- Deep Dive Response ---- */
+  .deep-dive-response {
+    margin: 1rem;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+    border-radius: 16px 16px 0 0;
+    max-height: 70vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    z-index: 101;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+  }
+
+  /* ---- Utilities Buttons ---- */
+  .diagram-utils,
+  .deep-utils {
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  .diagram-utils button,
+  .deep-utils button {
+    padding: 0.5rem 1rem;
+    min-height: 44px;
+    font-size: 14px;
+  }
+
+  /* ---- Error Message ---- */
+  .error-message {
+    padding: 1rem;
+    min-height: 200px;
+  }
+
+  .error-icon {
+    font-size: 36px;
+  }
+
+  .error-text {
+    font-size: 16px;
+    padding: 0 1rem;
+  }
+
+  .retry-btn {
+    width: 80%;
+    max-width: 200px;
+  }
+
+  /* ---- Touch Optimizations ---- */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button, input, .mermaid g.node {
+    touch-action: manipulation;
+  }
+
+  /* ---- Keyboard Handling ---- */
+  input:focus {
+    outline: none;
+    border-color: rgba(255,255,255,.6);
+  }
+
+  /* When keyboard is shown, adjust fixed elements */
+  @media (max-height: 500px) {
+    .selection-indicator,
+    .deep-dive-response {
+      position: relative;
+      margin: 1rem;
+      border-radius: 8px;
+    }
+  }
+}
+
+/* ---- Small iPhone SE/5 ---- */
+@media (max-width: 320px) {
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  button {
+    font-size: 14px;
+    padding: 0.5rem 1rem;
+  }
+
+  .diagram-utils button,
+  .deep-utils button {
+    font-size: 12px;
+    padding: 0.4rem 0.8rem;
+  }
+}
+
+/* ---- Landscape Orientation ---- */
+@media (max-width: 768px) and (orientation: landscape) {
+  h1 {
+    font-size: 1.5rem;
+    margin: 0.5rem 0;
+  }
+
+  #result {
+    min-height: 30vh;
+    max-height: 60vh;
+  }
+
+  .selection-indicator,
+  .deep-dive-response {
+    max-height: 80vh;
+  }
+}
+
+/* ---- Dark Mode Support ---- */
+@media (prefers-color-scheme: dark) {
+  /* Already dark themed, but ensure good contrast */
+  input, button {
+    border-color: rgba(255,255,255,.4);
+  }
+}
+
+/* ---- Reduce Motion for Accessibility ---- */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
