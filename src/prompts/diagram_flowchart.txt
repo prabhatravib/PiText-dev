@@ -55,7 +55,6 @@ flowchart TD
 ```
 
 Rules:
-- Use `([Start])` and `([End])` for terminal nodes
 - Use `[Step Name]` for process boxes
 - Use `{Question?}` for decision diamonds  
 - Use `==>` for thick flow arrows (provides better visibility than `-->`)
