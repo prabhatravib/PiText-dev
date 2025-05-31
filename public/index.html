@@ -49,5 +49,46 @@
 
   <!-- NEW: Load our split JS modules via a single ES-module entry point -->
   <script type="module" src="/domWiring.js"></script>
+
+  <!-- Device detection and injection for /describe API -->
+  <script>
+    function getDeviceType() {
+      if (window.innerWidth <= 768) return "mobile";
+      if (/android|iphone|ipad|ipod|windows phone/i.test(navigator.userAgent)) return "mobile";
+      return "desktop";
+    }
+
+    // Attach generate event after DOM load to avoid collision with domWiring.js
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById('generateBtn');
+      btn.addEventListener('click', async () => {
+        const query = document.getElementById('query').value;
+        const device = getDeviceType();
+        const resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = 'Generating...';
+
+        try {
+          const response = await fetch('/describe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query, device })
+          });
+          const data = await response.json();
+
+          if (data.success) {
+            if (data.renderType === 'html') {
+              resultDiv.innerHTML = data.renderedContent;
+            } else if (data.renderType === 'image') {
+              resultDiv.innerHTML = `<img src="${data.renderedContent}" style="max-width: 100%;">`;
+            }
+          } else {
+            resultDiv.innerHTML = `Error: ${data.error}`;
+          }
+        } catch (error) {
+          resultDiv.innerHTML = `Error: ${error.message}`;
+        }
+      });
+    });
+  </script>
 </body>
 </html>
