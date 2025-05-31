@@ -238,6 +238,16 @@
       fill: #000000 !important;
       font-weight: bold !important;
     }
+    /* smoothly scale the whole node on hover */
+.mermaid g.node {
+  transition: transform 0.15s ease-in-out;
+  transform-origin: center center;
+}
+
+.mermaid g.node:hover {
+  transform: scale(1.1);
+}
+
 
     /* Ensure node text remains readable */
     .mermaid text {
