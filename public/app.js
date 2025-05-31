@@ -103,6 +103,13 @@ function resetSelection() {
   document.getElementById('deepDiveResponse').classList.remove('active');
 }
 
+// Helper function to decode HTML entities
+function decodeHTMLEntities(text) {
+  const textarea = document.createElement('textarea');
+  textarea.innerHTML = text;
+  return textarea.value;
+}
+
 // Extract text inside a node
 function extractNodeText(node) {
   let t = '';
@@ -120,7 +127,8 @@ function extractNodeText(node) {
     if (lbl) t = lbl.textContent.trim();
   }
   
-  return t;
+  // Decode HTML entities before returning
+  return decodeHTMLEntities(t);
 }
 
 // ---------- deep-dive ----------

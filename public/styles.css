@@ -139,6 +139,13 @@ button {
   filter: drop-shadow(0 0 3px rgba(255,255,255,.9)) !important;
 }
 
+/* ---- Reserve space by using slightly smaller font size normally ---- */
+.mermaid text,
+.mermaid tspan,
+.mermaid .nodeLabel {
+  font-size: 12px !important; /* Slightly smaller default */
+}
+
 .mermaid .edgePath path,
 .mermaid .flowchart-link,
 .mermaid path.path,
@@ -160,18 +167,17 @@ button {
   filter: drop-shadow(0 0 2px rgba(255,255,255,.9)) !important;
 }
 
-/* ---- hover highlight *without* scaling the node ---- */
+/* ---- hover highlight - use text shadow instead of bold ---- */
 .mermaid g.node:hover rect {
   stroke-width: 3px !important;
 }
 
 .mermaid g.node:hover text,
-.mermaid g.node:hover tspan {
-  font-weight: 600 !important;
-}
-
+.mermaid g.node:hover tspan,
 .mermaid g.node:hover .nodeLabel {
-  font-weight: 600 !important;
+  /* Increase font size on hover instead of bold to fill the reserved space */
+  font-size: 13px !important;
+  text-shadow: 1px 1px 2px rgba(255,255,255,.8), 0 0 1px rgba(0,0,0,0.8) !important;
 }
 
 /* ---- "selected" class (after click) ---- */
