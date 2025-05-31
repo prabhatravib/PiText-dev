@@ -1,0 +1,186 @@
+/* ---- layout / background ---- */
+body {
+  background: #000 url("/PiText_background.png") center/100% auto no-repeat fixed;
+  color: #f0f0f0;
+  font-family: sans-serif;
+  margin: 2rem;
+  text-align: center;
+  min-height: 100vh;
+}
+
+h1 {
+  margin-bottom: 2rem;
+  color: #fff;
+  text-shadow: 0 0 8px rgba(0,0,0,.8);
+}
+
+input {
+  padding: .5rem;
+  font-size: 1rem;
+  width: 300px;
+  margin-right: .5rem;
+}
+
+button {
+  padding: .5rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+#result {
+  margin: 2rem auto;
+  border: 1px solid rgba(255,255,255,.3);
+  border-radius: 4px;
+  padding: 2rem;
+  min-height: 50vh;
+  max-width: 90vw;
+  background: rgba(255,255,255,.1);
+  backdrop-filter: blur(2px);
+  text-align: center;
+}
+
+/* ---- selection indicator (shows after you click a node) ---- */
+.selection-indicator {
+  display: none;
+  margin: 1rem auto;
+  padding: 1rem;
+  background: rgba(0,0,0,.8);
+  color: #fff;
+  border-radius: 8px;
+  max-width: 600px;
+  font-size: 14px;
+}
+
+.selection-indicator.active {
+  display: block;
+}
+
+.selection-display {
+  margin-bottom: 1rem;
+  padding-bottom: .5rem;
+  border-bottom: 1px solid rgba(255,255,255,.3);
+}
+
+.deep-dive-input {
+  display: flex;
+  gap: .5rem;
+  align-items: center;
+}
+
+.deep-dive-input input {
+  flex: 1;
+  padding: .5rem;
+  font-size: 14px;
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.3);
+  color: #fff;
+  border-radius: 4px;
+}
+
+.deep-dive-input input::placeholder {
+  color: rgba(255,255,255,.6);
+}
+
+.deep-dive-input button {
+  padding: .5rem 1rem;
+  font-size: 14px;
+  background: rgba(255,255,255,.2);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.3);
+  border-radius: 4px;
+  transition: background .2s;
+}
+
+.deep-dive-input button:hover {
+  background: rgba(255,255,255,.3);
+}
+
+/* ---- deep-dive response ---- */
+.deep-dive-response {
+  display: none;
+  margin: 1rem auto;
+  padding: 1.5rem;
+  background: rgba(0,0,0,.7);
+  color: #fff;
+  border-radius: 8px;
+  max-width: 800px;
+  font-size: 14px;
+  line-height: 1.6;
+  text-align: left;
+}
+
+.deep-dive-response.active {
+  display: block;
+}
+
+.deep-dive-response h3 {
+  margin: 0 0 .5rem;
+  font-size: 16px;
+}
+
+.deep-dive-response .question {
+  font-style: italic;
+  margin-bottom: 1rem;
+  opacity: .8;
+}
+
+.deep-dive-response .answer {
+  white-space: pre-wrap;
+}
+
+/* ---- mermaid tweaks: arrows and fonts ---- */
+.mermaid text {
+  cursor: text;
+  user-select: text;
+  text-shadow: 1px 1px 2px rgba(255,255,255,.8) !important;
+}
+
+.mermaid .nodeLabel {
+  filter: drop-shadow(0 0 3px rgba(255,255,255,.9)) !important;
+}
+
+.mermaid .edgePath path,
+.mermaid .flowchart-link,
+.mermaid path.path,
+.mermaid g.edgePath path,
+.mermaid g.edgePaths path {
+  stroke: #000 !important;
+  stroke-width: 4px !important;
+  fill: none !important;
+  filter: drop-shadow(0 0 3px rgba(255,255,255,.9)) drop-shadow(0 0 6px rgba(255,255,255,.8)) !important;
+}
+
+.mermaid .arrowheadPath,
+.mermaid .arrowhead path,
+.mermaid marker path,
+.mermaid marker polygon {
+  fill: #000 !important;
+  stroke: #fff !important;
+  stroke-width: 2px !important;
+  filter: drop-shadow(0 0 2px rgba(255,255,255,.9)) !important;
+}
+
+/* ---- hover highlight *without* scaling the node ---- */
+.mermaid g.node:hover rect {
+  stroke-width: 3px !important;
+}
+
+.mermaid g.node:hover text,
+.mermaid g.node:hover tspan {
+  font-weight: 600 !important;
+}
+
+/* ---- "selected" class (after click) ---- */
+.node-selected rect,
+.node-selected circle,
+.node-selected ellipse,
+.node-selected polygon {
+  stroke-width: 3px !important;
+}
+
+.node-selected text,
+.node-selected tspan,
+.node-selected .nodeLabel {
+  font-weight: bold !important;
+  font-size: 15px !important;
+}
