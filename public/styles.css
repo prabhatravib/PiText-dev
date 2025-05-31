@@ -203,3 +203,40 @@ button {
   font-weight: bold !important;
   font-size: 15px !important;
 }
+
+/* ---- error message ---- */
+.error-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: #fff;
+  gap: 1rem;
+}
+
+.error-icon {
+  font-size: 48px;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+}
+
+.error-text {
+  font-size: 18px;
+  text-shadow: 0 0 8px rgba(0,0,0,.8);
+  margin-bottom: 1rem;
+}
+
+.retry-btn {
+  padding: .75rem 1.5rem;
+  font-size: 16px;
+  background: rgba(255,255,255,.2);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.3);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background .2s;
+}
+
+.retry-btn:hover {
+  background: rgba(255,255,255,.3);
+}
