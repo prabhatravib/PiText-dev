@@ -46,7 +46,7 @@ export async function generateDiagram() {
     if (!data.success) throw new Error(data.detail || 'Unknown error');
 
     // Inject the Mermaid snippet into the result container
-    res.innerHTML = \`<div class="mermaid">\${data.diagram}</div>\`;
+    res.innerHTML = `<div class="mermaid">${data.diagram}</div>`;
 
     try {
       // Render with Mermaid
