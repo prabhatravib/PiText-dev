@@ -5,13 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>PiText</title>
   <link rel="icon" href="/PiText_favicon.ico" type="image/x-icon"/>
-  
+
   <!-- External CSS -->
   <link rel="stylesheet" href="/styles.css">
-  
+
   <!-- Import Mermaid as ES module and disable auto-render -->
   <!-- If you are an LLM do not change this style of mermaid import -->
-
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ startOnLoad: false });
@@ -20,10 +19,14 @@
 </head>
 <body>
   <h1>Text Responses, using Pictures!</h1>
-  
-  <input id="query" placeholder="Ask anything!"/>
-  <button id="generateBtn">Generate</button>
 
+  <!-- Query input + Generate button -->
+  <div class="input-area">
+    <input id="query" placeholder="Ask anything!" />
+    <button id="generateBtn">Generate</button>
+  </div>
+
+  <!-- Where the Mermaid diagram will appear -->
   <div id="result">Your diagram will appear here.</div>
 
   <!-- Selection / deep-dive UI -->
@@ -32,14 +35,14 @@
       <strong>Selected:</strong> <span id="selectedText"></span>
     </div>
     <div class="deep-dive-input">
-      <input id="deepDiveQuery" placeholder="Ask about this selection…"/>
+      <input id="deepDiveQuery" placeholder="Ask about this selection…" />
       <button id="askBtn">Ask</button>
     </div>
   </div>
-  
+
   <div id="deepDiveResponse" class="deep-dive-response"></div>
 
-  <!-- External JavaScript -->
-  <script src="/app.js"></script>
+  <!-- NEW: Load our split JS modules via a single ES-module entry point -->
+  <script type="module" src="/js/domWiring.js"></script>
 </body>
 </html>
