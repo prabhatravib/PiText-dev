@@ -38,16 +38,42 @@ async function generateDiagram() {
     if (!data.success) throw new Error(data.detail || 'Unknown error');
     
     res.innerHTML = `<div class="mermaid">${data.diagram}</div>`;
-    mermaid.init(undefined, res.querySelector('.mermaid'));
     
-    // Wait a tick so SVG exists, then post-process
-    setTimeout(() => {
-      forceArrowVisibility(res);
-      setupTextSelection(res);
-    }, 50);
+    // Try to render with Mermaid, catch any syntax errors
+    try {
+      await mermaid.init(undefined, res.querySelector('.mermaid'));
+      
+      // Wait a tick so SVG exists, then post-process
+      setTimeout(() => {
+        // Check if Mermaid actually created an SVG
+        const svg = res.querySelector('svg');
+        if (!svg) {
+          showErrorMessage(res);
+          return;
+        }
+        
+        forceArrowVisibility(res);
+        setupTextSelection(res);
+      }, 50);
+    } catch (mermaidError) {
+      console.error('Mermaid rendering error:', mermaidError);
+      showErrorMessage(res);
+    }
   } catch (err) {
-    res.textContent = `Error: ${err.message}`;
+    console.error('Generation error:', err);
+    showErrorMessage(res);
   }
+}
+
+// ---------- show error message ----------
+function showErrorMessage(container) {
+  container.innerHTML = `
+    <div class="error-message">
+      <div class="error-icon">⚠️</div>
+      <div class="error-text">Something went wrong. Please generate again.</div>
+      <button class="retry-btn" onclick="generateDiagram()">Retry</button>
+    </div>
+  `;
 }
 
 // ---------- node / edge clicks ----------
