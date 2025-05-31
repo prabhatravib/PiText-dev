@@ -8,11 +8,12 @@
   }
 }
 
+/* ---- Never remove the 768px, this parameter specifies that this code is only for mobile webpage ---- */
 @media (max-width: 768px) {
   body {
     margin: 0;
-    background: #000 !important;
-    background-size: cover;
+    /* Use background image just like desktop! */
+    background: #000 url('/PiText_background.png') center center / cover no-repeat !important;
     background-attachment: scroll;
     color: #fff;
     font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
@@ -28,9 +29,8 @@
     text-shadow: 0 2px 8px #0008;
   }
 
-  /* Input and Generate button, matching your modern style */
-  input#query,
-  button#generateBtn {
+  /* Input and Generate button, distinct modern styles */
+  input#query {
     background: #1a1a1a;
     border: 2px solid #fff;
     color: #fff;
@@ -48,10 +48,26 @@
     display: block;
   }
 
+  button#generateBtn {
+    background: linear-gradient(90deg,#38b6ff,#0152d9);
+    border: none;
+    color: #fff;
+    border-radius: 22px;
+    font-size: 1.6rem;
+    padding: 1rem 1.2rem;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0 0 1rem 0;
+    font-weight: bold;
+    box-shadow: 0 2px 16px #0152d980;
+    letter-spacing: 1px;
+    transition: background 0.2s, box-shadow 0.2s;
+    display: block;
+  }
   button#generateBtn:hover,
   button#generateBtn:focus {
-    border-color: #fff;
-    background: #222;
+    background: linear-gradient(90deg,#0152d9,#38b6ff);
+    box-shadow: 0 1px 6px #0152d980;
     cursor: pointer;
   }
   input#query:focus {
@@ -87,6 +103,7 @@
     -webkit-overflow-scrolling: touch;
     max-width: 100%;
     margin: 0 auto;
+    margin-top: 2.2rem; /* leaves space for utility buttons */
   }
   .mermaid svg {
     max-width: none !important;
@@ -102,14 +119,14 @@
   .diagram-utils,
   .deep-utils {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
+    top: 0.5rem;
+    right: 0.5rem;
     display: flex;
-    gap: 0.7rem;
-    background: rgba(0,0,0,0.3);
+    gap: 0.4rem;
+    background: rgba(0,0,0,0.35);
     border-radius: 8px;
-    padding: 0.2rem 0.6rem;
-    z-index: 5;
+    padding: 0.1rem 0.3rem;
+    z-index: 10;
     justify-content: center;
     align-items: center;
   }
@@ -119,15 +136,18 @@
     background: none;
     border: none;
     color: #fff;
-    font-size: 1.35rem;
-    padding: 0.25rem 0.5rem;
+    font-size: 1.05rem;
+    padding: 0.1rem 0.2rem;
     border-radius: 6px;
     transition: background 0.13s;
-    min-height: 40px;
+    min-height: 24px;
+    min-width: 24px;
+    opacity: 0.8;
   }
   .diagram-utils button:active,
   .deep-utils button:active {
     background: #222a;
+    opacity: 1;
   }
 
   /* Error Message */
