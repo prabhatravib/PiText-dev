@@ -52,7 +52,7 @@
     .deep-dive-response.active{display:block;}
     .deep-dive-response h3{margin:0 0 .5rem;font-size:16px;}
     .deep-dive-response .question{font-style:italic;margin-bottom:1rem;opacity:.8;}
-    .deep-dive-response .answer{white-space:pre-wrap;}
+    .deep-dive-response .answer{white-space:pre-wrap;}    
 
     /* ---- mermaid tweaks: arrows and fonts ---- */
     .mermaid text{cursor:text;user-select:text;text-shadow:1px 1px 2px rgba(255,255,255,.8)!important;}
@@ -73,15 +73,14 @@
       filter:drop-shadow(0 0 2px rgba(255,255,255,.9))!important;
     }
 
-    /* ---- hover highlight: scale the whole node ---- */
-    .mermaid g.node:hover {
+    /* ---- node-hover feedback: scale the whole group ---- */
+    .mermaid g.node:hover rect{stroke-width:3px!important;}
+    .mermaid g.node:hover{
       transform:scale(1.08);
       transform-origin:center;
       transition:transform 120ms;
-      /* Safari 14–15 fix */
-      transform-box:fill-box;
+      transform-box:fill-box; /* Safari 14–15 */
     }
-    .mermaid g.node:hover rect{stroke-width:3px!important;}
 
     /* ---- “selected” class (after click) ---- */
     .node-selected rect,
@@ -114,108 +113,100 @@
 
   <!-- ==========  JS ========== -->
   <script>
+    /* ------------ Mermaid global setup ------------ */
     mermaid.initialize({ startOnLoad:false });
 
     /* ---------- state ---------- */
-    let selectedElement=null, selectedText='', currentQuery='';
+    let selectedElement = null;  // currently highlighted SVG node/edge
+    let selectedText    = '';
+    let currentQuery    = '';
 
     /* ---------- UI wiring ---------- */
-    document.getElementById('generateBtn').onclick = generateDiagram;
-    document.getElementById('askBtn').onclick      = askAboutSelection;
-    document.getElementById('deepDiveQuery')
-            .addEventListener('keypress',e=>{ if(e.key==='Enter') askAboutSelection(); });
+    document.getElementById('generateBtn').addEventListener('click', generateDiagram);
+    document.getElementById('askBtn').addEventListener('click', askAboutSelection);
+    document.getElementById('deepDiveQuery').addEventListener('keypress', e => {
+      if (e.key === 'Enter') askAboutSelection();
+    });
 
     /* ---------- generate diagram ---------- */
-    async function generateDiagram(){
-      const q=document.getElementById('query').value.trim();
-      const res=document.getElementById('result');
-      if(!q){res.textContent='Please enter a query.';return;}
-      currentQuery=q;
+    async function generateDiagram () {
+      const q   = document.getElementById('query').value.trim();
+      const res = document.getElementById('result');
+
+      if (!q) { res.textContent = 'Please enter a query.'; return; }
+      currentQuery = q;
       resetSelection();
 
-      res.textContent='Generating…';
-      try{
-        const r=await fetch('/describe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q})});
-        const data=await r.json();
-        if(!data.success) throw new Error(data.detail||'Unknown error');
+      res.textContent = 'Generating…';
 
-        res.innerHTML=`<div class="mermaid">${data.diagram}</div>`;
-        mermaid.init(undefined,res.querySelector('.mermaid'));
+      try {
+        const r     = await fetch('/describe', {
+          method  : 'POST',
+          headers : { 'Content-Type': 'application/json' },
+          body    : JSON.stringify({ query: q })
+        });
+        const data  = await r.json();
+        if (!data.success) throw new Error(data.detail || 'Unknown error');
 
-        /* wait a tick so SVG exists, then post-process */
-        setTimeout(()=>{forceArrowVisibility(res);setupTextSelection(res);},50);
-      }catch(err){res.textContent=`Error: ${err.message}`;}
+        // Inject Mermaid code and render
+        res.innerHTML = `<div class="mermaid">${data.diagram}</div>`;
+        mermaid.init(undefined, res.querySelector('.mermaid'));
+
+        // Wait one tick so the SVG is in the DOM, then post‑process
+        setTimeout(() => {
+          forceArrowVisibility(res);
+          setupTextSelection(res);
+        }, 50);
+      }
+      catch (err) {
+        res.textContent = `Error: ${err.message}`;
+      }
     }
 
     /* ---------- node / edge clicks ---------- */
-    function setupTextSelection(container){
-      const svg=container.querySelector('svg'); if(!svg) return;
+    function setupTextSelection (container) {
+      const svg = container.querySelector('svg');
+      if (!svg) return;
 
-      /* node click */
-      svg.querySelectorAll('g.node').forEach(node=>{
-        node.style.cursor='pointer';
-        node.onclick=()=>{
-          selectElement(node,extractNodeText(node));
-        };
+      // Node click
+      svg.querySelectorAll('g.node').forEach(node => {
+        node.style.cursor = 'pointer';
+        node.addEventListener('click', () => {
+          selectElement(node, extractNodeText(node));
+        });
       });
 
-      /* edge-label click */
-      svg.querySelectorAll('.edgeLabel').forEach(lbl=>{
-        lbl.style.cursor='pointer';
-        lbl.onclick=e=>{
+      // Edge‑label click
+      svg.querySelectorAll('.edgeLabel').forEach(lbl => {
+        lbl.style.cursor = 'pointer';
+        lbl.addEventListener('click', e => {
           e.stopPropagation();
-          selectElement(lbl,lbl.textContent.trim());
-        };
+          selectElement(lbl, lbl.textContent.trim());
+        });
       });
 
-      /* blank click clears selection */
-      svg.onclick=e=>{
-        if(e.target===svg){
-          resetSelection();
-        }
-      };
+      // Blank click clears selection
+      svg.addEventListener('click', e => {
+        if (e.target === svg) resetSelection();
+      });
     }
 
-    function selectElement(el,text){
-      if(selectedElement) selectedElement.classList.remove('node-selected');
+    function selectElement (el, text) {
+      if (selectedElement) selectedElement.classList.remove('node-selected');
       el.classList.add('node-selected');
-      selectedElement=el; selectedText=text||'';
-      document.getElementById('selectedText').textContent=selectedText;
+      selectedElement = el;
+      selectedText    = text || '';
+
+      document.getElementById('selectedText').textContent = selectedText;
       document.getElementById('selectionIndicator').classList.add('active');
       document.getElementById('deepDiveQuery').focus();
     }
 
-    function resetSelection(){
-      if(selectedElement) selectedElement.classList.remove('node-selected');
-      selectedElement=null; selectedText='';
+    function resetSelection () {
+      if (selectedElement) selectedElement.classList.remove('node-selected');
+      selectedElement = null;
+      selectedText    = '';
+
       document.getElementById('selectionIndicator').classList.remove('active');
-      document.getElementById('deepDiveQuery').value='';
-      document.getElementById('deepDiveResponse').classList.remove('active');
-    }
-
-    /* extract text inside a node */
-    function extractNodeText(node){
-      let t=''; const textEl=node.querySelector('text');
-      if(textEl){
-        const ts=textEl.querySelectorAll('tspan');
-        t=ts.length?Array.from(ts).map(x=>x.textContent.trim()).filter(Boolean).join(' '):textEl.textContent.trim();
-      }
-      if(!t){
-        const lbl=node.querySelector('.nodeLabel'); if(lbl) t=lbl.textContent.trim();
-      }
-      return t;
-    }
-
-    /* ---------- deep-dive ---------- */
-    async function askAboutSelection(){
-      const q=document.getElementById('deepDiveQuery').value.trim();
-      if(!q||!selectedText) return;
-      const respDiv=document.getElementById('deepDiveResponse');
-      respDiv.innerHTML='<div>Thinking…</div>';
-      respDiv.classList.add('active');
-
-      try{
-        const r=await fetch('/deep-dive',{
-          method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({selected_text:selectedText,question:q,original_query:currentQuery})
-        });
+      document.getElementById('deepDiveQuery').value = '';
+      document.getElementById('deepDiveResponse').classList.remove('
