@@ -96,9 +96,6 @@ saveBtn.onclick = () => {
   img.src = url;
 };
 
-    img.src = url;
-  };
-
   utils.append(copyBtn, saveBtn);
   diagramHost.prepend(utils);
 }
