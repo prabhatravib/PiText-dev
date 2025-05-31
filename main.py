@@ -9,7 +9,6 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-from typing import Optional
 from dotenv import load_dotenv
 import uvicorn
 
@@ -31,7 +30,6 @@ app.add_middleware(
 # 2) Your API endpoints
 class DescribeRequest(BaseModel):
     query: str
-    device: Optional[str] = "desktop"   # NEW: device type, default desktop
 
 class DeepDiveRequest(BaseModel):
     selected_text: str
@@ -43,11 +41,6 @@ async def describe(request: DescribeRequest):
     if not request.query:
         raise HTTPException(status_code=400, detail="Query is required")
     try:
-        print(f"Processing query: {request.query} (device: {request.device})")
-        if request.device and request.device.lower() == "mobile":
-            print("Request made from MOBILE")
-        else:
-            print("Request made from DESKTOP")
         result = await process_pipeline(request.query)
         return {"success": True, "query": request.query, **result}
     except Exception as e:
