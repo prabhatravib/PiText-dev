@@ -33,13 +33,11 @@ Follow this pattern:
 }}%%
 
 flowchart TD
-    Start([Start]):::startEnd
     Step1[First Step]:::default
     Step2[Second Step]:::default
     Decision{Decision Point?}:::decision
     Step3A[Option A]:::default
     Step3B[Option B]:::default
-    End([End]):::startEnd
     
     Start ==> Step1
     Step1 ==> Step2
