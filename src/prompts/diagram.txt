@@ -44,7 +44,7 @@ flowchart TD
     B <==> A
     C <==> A
     A <==> D
-    A ==> E
+    A <==> E
 
     classDef center fill:#e3f2fd,stroke:#000000,stroke-width:3px,color:#000000
     classDef fact fill:#f9f9f9,stroke:#000000,stroke-width:2px,color:#000000

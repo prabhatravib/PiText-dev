@@ -1,5 +1,10 @@
-// Initialize Mermaid
-mermaid.initialize({ startOnLoad: false });
+// Initialize Mermaid with error handling
+mermaid.initialize({ 
+  startOnLoad: false,
+  securityLevel: 'loose',
+  theme: 'default',
+  logLevel: 'error'
+});
 
 // ---------- state ----------
 let selectedElement = null;
@@ -11,6 +16,9 @@ document.getElementById('generateBtn').onclick = generateDiagram;
 document.getElementById('askBtn').onclick = askAboutSelection;
 document.getElementById('deepDiveQuery').addEventListener('keypress', e => {
   if (e.key === 'Enter') askAboutSelection();
+});
+document.getElementById('query').addEventListener('keypress', e => {
+  if (e.key === 'Enter') generateDiagram();
 });
 
 // ---------- generate diagram ----------
@@ -37,24 +45,17 @@ async function generateDiagram() {
     const data = await r.json();
     if (!data.success) throw new Error(data.detail || 'Unknown error');
     
-    res.innerHTML = `<div class="mermaid">${data.diagram}</div>`;
+    // Create a temporary container for Mermaid
+    res.innerHTML = `<div class="mermaid" id="mermaid-container">${data.diagram}</div>`;
     
-    // Try to render with Mermaid, catch any syntax errors
+    // Try to render with Mermaid
     try {
       await mermaid.init(undefined, res.querySelector('.mermaid'));
       
-      // Wait a tick so SVG exists, then post-process
+      // Check after a short delay to see if rendering succeeded
       setTimeout(() => {
-        // Check if Mermaid actually created an SVG
-        const svg = res.querySelector('svg');
-        if (!svg) {
-          showErrorMessage(res);
-          return;
-        }
-        
-        forceArrowVisibility(res);
-        setupTextSelection(res);
-      }, 50);
+        checkMermaidRendering(res);
+      }, 100);
     } catch (mermaidError) {
       console.error('Mermaid rendering error:', mermaidError);
       showErrorMessage(res);
@@ -63,6 +64,35 @@ async function generateDiagram() {
     console.error('Generation error:', err);
     showErrorMessage(res);
   }
+}
+
+// ---------- check if Mermaid rendered successfully ----------
+function checkMermaidRendering(container) {
+  const mermaidContainer = container.querySelector('#mermaid-container');
+  
+  // Check if Mermaid inserted an error message
+  if (mermaidContainer && mermaidContainer.textContent.includes('Syntax error')) {
+    showErrorMessage(container);
+    return;
+  }
+  
+  // Check if SVG was created
+  const svg = container.querySelector('svg');
+  if (!svg) {
+    showErrorMessage(container);
+    return;
+  }
+  
+  // Check if SVG has actual content
+  const hasNodes = svg.querySelector('g.node');
+  if (!hasNodes) {
+    showErrorMessage(container);
+    return;
+  }
+  
+  // Success - apply post-processing
+  forceArrowVisibility(container);
+  setupTextSelection(container);
 }
 
 // ---------- show error message ----------
