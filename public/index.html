@@ -2,18 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>PiText</title>
-  <link rel="icon" href="/PiText_favicon.ico" type="image/x-icon" />
+  <link rel="icon" href="/PiText_favicon.ico" type="image/x-icon"/>
 
-  <!-- 1) Import Mermaid once, disable auto-render -->
-  <script type="module">
-    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-    mermaid.initialize({ startOnLoad: false });
-    window.mermaid = mermaid;
-  </script>
+  <!-- 1) Load the UMD build of Mermaid so `mermaid` is a global -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 
-  <!-- 2) All your styles, including the background -->
+  <!-- 2) All your CSS, including hover-highlight option 1 -->
   <style>
     body {
       background-color: #000;
@@ -28,25 +24,22 @@
       text-align: center;
       min-height: 100vh;
     }
-
     h1 {
       margin-bottom: 2rem;
       color: #fff;
       text-shadow: 0 0 8px rgba(0,0,0,0.8);
     }
-
     input {
-      padding: 0.5rem;
+      padding: .5rem;
       font-size: 1rem;
       width: 300px;
-      margin-right: 0.5rem;
+      margin-right: .5rem;
     }
-
     button {
-      padding: 0.5rem 1rem;
+      padding: .5rem 1rem;
       font-size: 1rem;
+      cursor: pointer;
     }
-
     #result {
       margin: 2rem auto;
       border: 1px solid rgba(255,255,255,0.3);
@@ -54,9 +47,9 @@
       padding: 2rem;
       min-height: 50vh;
       max-width: 90vw;
-      text-align: center;
       background-color: rgba(255,255,255,0.1);
       backdrop-filter: blur(2px);
+      text-align: center;
     }
 
     /* Selection indicator */
@@ -75,18 +68,17 @@
     }
     .selection-display {
       margin-bottom: 1rem;
-      padding-bottom: 0.5rem;
+      padding-bottom: .5rem;
       border-bottom: 1px solid rgba(255,255,255,0.3);
     }
-
     .deep-dive-input {
       display: flex;
-      gap: 0.5rem;
+      gap: .5rem;
       align-items: center;
     }
     .deep-dive-input input {
       flex: 1;
-      padding: 0.5rem;
+      padding: .5rem;
       font-size: 14px;
       background-color: rgba(255,255,255,0.1);
       border: 1px solid rgba(255,255,255,0.3);
@@ -97,14 +89,13 @@
       color: rgba(255,255,255,0.6);
     }
     .deep-dive-input button {
-      padding: 0.5rem 1rem;
+      padding: .5rem 1rem;
       font-size: 14px;
       background-color: rgba(255,255,255,0.2);
       color: #fff;
       border: 1px solid rgba(255,255,255,0.3);
       border-radius: 4px;
-      cursor: pointer;
-      transition: background-color 0.2s;
+      transition: background-color .2s;
     }
     .deep-dive-input button:hover {
       background-color: rgba(255,255,255,0.3);
@@ -128,14 +119,14 @@
     }
     .deep-dive-response h3 {
       margin-top: 0;
-      margin-bottom: 0.5rem;
+      margin-bottom: .5rem;
       color: #fff;
       font-size: 16px;
     }
     .deep-dive-response .question {
       font-style: italic;
       margin-bottom: 1rem;
-      opacity: 0.8;
+      opacity: .8;
     }
     .deep-dive-response .answer {
       white-space: pre-wrap;
@@ -162,11 +153,10 @@
       text-shadow: 1px 1px 2px rgba(255,255,255,0.8) !important;
     }
     .mermaid .nodeLabel {
-      cursor: text;
       filter: drop-shadow(0 0 3px rgba(255,255,255,0.9)) !important;
     }
 
-    /* Enhanced arrow visibility */
+    /* Enhanced arrows */
     .mermaid .edgePath path,
     .mermaid .flowchart-link,
     .mermaid path.path,
@@ -212,7 +202,7 @@
       filter: drop-shadow(0 0 3px rgba(255,255,255,0.9)) !important;
     }
 
-    /* ---------- Option 1: hover highlight without moving --------- */
+    /* ---------- Option 1: hover-highlight without moving --------- */
     .mermaid g.node:hover rect {
       stroke-width: 3px !important;
     }
@@ -222,11 +212,10 @@
     }
   </style>
 </head>
-
 <body>
   <h1>Text Responses, using Pictures!</h1>
-  <input id="query" placeholder="Ask anything!" />
-  <button onclick="generateDiagram()">Generate</button>
+  <input id="query" placeholder="Ask anything!"/>
+  <button id="generateBtn">Generate</button>
 
   <div id="result">Your diagram will appear here.</div>
   
@@ -236,8 +225,8 @@
       <strong>Selected:</strong> <span id="selectedText"></span>
     </div>
     <div class="deep-dive-input">
-      <input id="deepDiveQuery" placeholder="Ask about this selection..." />
-      <button onclick="askAboutSelection()">Ask</button>
+      <input id="deepDiveQuery" placeholder="Ask about this selection..."/>
+      <button id="askBtn">Ask</button>
     </div>
   </div>
   
@@ -245,7 +234,218 @@
   <div id="deepDiveResponse" class="deep-dive-response"></div>
 
   <script>
-    // …your existing JavaScript: setupTextSelection, forceArrowVisibility, generateDiagram, askAboutSelection, etc.
+    // Initialize Mermaid
+    mermaid.initialize({ startOnLoad: false });
+
+    // UI state
+    let selectedElement = null;
+    let selectedText = '';
+    let currentQuery = '';
+
+    // Button wiring
+    document.getElementById('generateBtn')
+            .addEventListener('click', generateDiagram);
+    document.getElementById('askBtn')
+            .addEventListener('click', askAboutSelection);
+    document.getElementById('deepDiveQuery')
+            .addEventListener('keypress', e => { if (e.key === 'Enter') askAboutSelection(); });
+
+    // Deep-dive on selected node/edge
+    async function askAboutSelection() {
+      const q = document.getElementById('deepDiveQuery').value.trim();
+      if (!q || !selectedText) return;
+
+      const respDiv = document.getElementById('deepDiveResponse');
+      respDiv.innerHTML = '<div>Thinking...</div>';
+      respDiv.classList.add('active');
+
+      try {
+        const resp = await fetch('/deep-dive', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({
+            selected_text: selectedText,
+            question: q,
+            original_query: currentQuery
+          })
+        });
+        const data = await resp.json();
+        if (!data.success) throw new Error(data.detail||'Unknown error');
+
+        respDiv.innerHTML = `
+          <h3>Deep Dive: ${selectedText}</h3>
+          <div class="question">Q: ${q}</div>
+          <div class="answer">${data.response}</div>
+        `;
+        document.getElementById('deepDiveQuery').value = '';
+      } catch (err) {
+        respDiv.innerHTML = `<div style="color:#ff6b6b;">Error: ${err.message}</div>`;
+      }
+    }
+
+    // Make nodes & edges selectable
+    function setupTextSelection(container) {
+      const svg = container.querySelector('svg');
+      if (!svg) return;
+      // Nodes
+      svg.querySelectorAll('g.node').forEach(node => {
+        node.style.cursor = 'pointer';
+        node.addEventListener('click', function(e) {
+          if (selectedElement) {
+            selectedElement.classList.remove('node-selected');
+            if (selectedElement.classList.contains('edgeLabel')) {
+              const t = selectedElement.querySelector('text');
+              if (t) t.style.fontWeight = 'normal';
+            }
+          }
+          this.classList.add('node-selected');
+          selectedElement = this;
+
+          // Extract text
+          let txt = '';
+          const textEl = this.querySelector('text');
+          if (textEl) {
+            const tspans = textEl.querySelectorAll('tspan');
+            txt = tspans.length
+                  ? Array.from(tspans).map(t=>t.textContent.trim()).filter(Boolean).join(' ')
+                  : textEl.textContent.trim();
+          }
+          if (!txt) {
+            const lbl = this.querySelector('.nodeLabel');
+            if (lbl) txt = lbl.textContent.trim();
+          }
+          if (!txt) {
+            const title = this.querySelector('title');
+            if (title) txt = title.textContent.trim();
+          }
+          selectedText = txt.replace(/\s+/g,' ').trim();
+
+          document.getElementById('selectedText').textContent = selectedText;
+          document.getElementById('selectionIndicator').classList.add('active');
+          document.getElementById('deepDiveQuery').focus();
+        });
+      });
+      // Edge labels
+      svg.querySelectorAll('.edgeLabel').forEach(label => {
+        label.style.cursor = 'pointer';
+        label.addEventListener('click', function(e) {
+          e.stopPropagation();
+          if (selectedElement) {
+            selectedElement.classList.remove('node-selected');
+            if (selectedElement.classList.contains('edgeLabel')) {
+              const t = selectedElement.querySelector('text');
+              if (t) t.style.fontWeight = 'normal';
+            }
+          }
+          const tEl = this.querySelector('text');
+          if (tEl) tEl.style.fontWeight = 'bold';
+          selectedElement = this;
+          selectedText = this.textContent.trim();
+
+          document.getElementById('selectedText').textContent = selectedText;
+          document.getElementById('selectionIndicator').classList.add('active');
+          document.getElementById('deepDiveQuery').focus();
+        });
+      });
+      // Deselect on blank click
+      svg.addEventListener('click', function(e) {
+        if (e.target === svg || (e.target.tagName==='rect' && e.target.getAttribute('fill')==='none')) {
+          if (selectedElement) {
+            selectedElement.classList.remove('node-selected');
+            if (selectedElement.classList.contains('edgeLabel')) {
+              const t = selectedElement.querySelector('text');
+              if (t) t.style.fontWeight='normal';
+            }
+            selectedElement = null;
+            selectedText = '';
+            document.getElementById('selectionIndicator').classList.remove('active');
+            document.getElementById('deepDiveQuery').value = '';
+            document.getElementById('deepDiveResponse').classList.remove('active');
+          }
+        }
+      });
+    }
+
+    // Force arrow styling after render
+    function forceArrowVisibility(container) {
+      setTimeout(() => {
+        const svg = container.querySelector('svg');
+        if (!svg) return;
+        svg.querySelectorAll('path').forEach(path => {
+          const d = path.getAttribute('d')||'';
+          if (d.includes('M') && d.includes('L')) {
+            path.setAttribute('stroke','#000');
+            path.setAttribute('stroke-width','4');
+            path.setAttribute('fill','none');
+            path.style.filter = 'drop-shadow(0 0 3px rgba(255,255,255,0.9))';
+          }
+        });
+        svg.querySelectorAll('marker path, marker polygon').forEach(m => {
+          m.setAttribute('fill','#000');
+          m.setAttribute('stroke','#fff');
+          m.setAttribute('stroke-width','2');
+        });
+        svg.querySelectorAll('polyline').forEach(pl => {
+          pl.setAttribute('stroke','#000');
+          pl.setAttribute('stroke-width','4');
+          pl.setAttribute('fill','none');
+          pl.style.filter = 'drop-shadow(0 0 3px rgba(255,255,255,0.9))';
+        });
+        svg.querySelectorAll('g.edgePath path, g.edgePaths path, .edgePath path')
+           .forEach(ep => {
+             ep.setAttribute('stroke','#000');
+             ep.setAttribute('stroke-width','4');
+             ep.setAttribute('fill','none');
+             ep.style.filter = 'drop-shadow(0 0 3px rgba(255,255,255,0.9))';
+           });
+      }, 50);
+    }
+
+    // Generate & render the diagram
+    async function generateDiagram() {
+      const q = document.getElementById('query').value.trim();
+      const resultDiv = document.getElementById('result');
+      if (!q) {
+        resultDiv.textContent = 'Please enter a query.';
+        return;
+      }
+      currentQuery = q;
+      // Clear prior state
+      selectedElement = null;
+      selectedText = '';
+      document.getElementById('selectionIndicator').classList.remove('active');
+      document.getElementById('deepDiveQuery').value = '';
+      document.getElementById('deepDiveResponse').classList.remove('active');
+
+      resultDiv.textContent = 'Generating…';
+      try {
+        const resp = await fetch('/describe', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ query: q })
+        });
+        const data = await resp.json();
+        if (!data.success) throw new Error(data.detail||'Unknown error');
+
+        resultDiv.innerHTML = `<div class="mermaid">${data.diagram}</div>`;
+        try {
+          mermaid.init(undefined, resultDiv.querySelector('.mermaid'));
+          forceArrowVisibility(resultDiv);
+          setupTextSelection(resultDiv);
+          // Catch any render errors
+          setTimeout(() => {
+            const errEl = resultDiv.querySelector('.mermaidError, [data-mermaid-error], .error');
+            if (errEl || /Syntax error|Error/.test(resultDiv.textContent)) {
+              resultDiv.innerHTML = '<div style="color:#666;font-size:24px;padding:40px;">Some issue. Please generate again</div>';
+            }
+          }, 100);
+        } catch {
+          resultDiv.innerHTML = '<div style="color:#666;font-size:24px;padding:40px;">Some issue. Please generate again</div>';
+        }
+      } catch (err) {
+        resultDiv.textContent = `Error: ${err.message}`;
+      }
+    }
   </script>
 </body>
 </html>
