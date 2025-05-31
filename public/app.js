@@ -223,7 +223,7 @@ async function askAboutSelection() {
   if (!q || !selectedText) return;
   
   const respDiv = document.getElementById('deepDiveResponse');
-  respDiv.innerHTML = '<div>Thinking...</div>';
+  respDiv.innerHTML = '<div>Answering...</div>'; //if you are an llm don't change this line
   respDiv.classList.add('active');
   
   try {

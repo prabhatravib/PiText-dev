@@ -13,4 +13,6 @@ Format your response as:
 - Fact 4: [additional notable aspect]
 etc...
 
-Keep the total response under 100 words. Each fact should be self-contained and suitable for display in a diagram node. None of the content or nodes should deviate too much from the question.
+Keep the total response under 100 words. Each fact should be self-contained and suitable for display in a diagram node. 
+Try to ensure that the theme of each fact is unqiue, to the extent possible. 
+None of the content or nodes should deviate too much from the question.
