@@ -16,7 +16,7 @@
       background:#000 url("/PiText_background.png") center/100% auto no-repeat fixed;
       color:#f0f0f0;font-family:sans-serif;margin:2rem;text-align:center;min-height:100vh;
     }
-    h1{margin-bottom:2rem;color:#fff;text-shadow:0 0 8px rgba(0,0,0,.8);}
+    h1{margin-bottom:2rem;color:#fff;text-shadow:0 0 8px rgba(0,0,0,.8);}    
     input{padding:.5rem;font-size:1rem;width:300px;margin-right:.5rem;}
     button{padding:.5rem 1rem;font-size:1rem;cursor:pointer;}
     #result{
@@ -31,18 +31,18 @@
       background:rgba(0,0,0,.8);color:#fff;border-radius:8px;max-width:600px;font-size:14px;
     }
     .selection-indicator.active{display:block;}
-    .selection-display{margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid rgba(255,255,255,.3);}
+    .selection-display{margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid rgba(255,255,255,.3);}    
     .deep-dive-input{display:flex;gap:.5rem;align-items:center;}
     .deep-dive-input input{
       flex:1;padding:.5rem;font-size:14px;background:rgba(255,255,255,.1);
       border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:4px;
     }
-    .deep-dive-input input::placeholder{color:rgba(255,255,255,.6);}
+    .deep-dive-input input::placeholder{color:rgba(255,255,255,.6);}    
     .deep-dive-input button{
       padding:.5rem 1rem;font-size:14px;background:rgba(255,255,255,.2);color:#fff;
       border:1px solid rgba(255,255,255,.3);border-radius:4px;transition:background .2s;
     }
-    .deep-dive-input button:hover{background:rgba(255,255,255,.3);}
+    .deep-dive-input button:hover{background:rgba(255,255,255,.3);}    
 
     /* ---- deep-dive response ---- */
     .deep-dive-response{
@@ -73,10 +73,15 @@
       filter:drop-shadow(0 0 2px rgba(255,255,255,.9))!important;
     }
 
-    /* ---- hover highlight *without* scaling the node ---- */
+    /* ---- hover highlight: scale the whole node ---- */
+    .mermaid g.node:hover {
+      transform:scale(1.08);
+      transform-origin:center;
+      transition:transform 120ms;
+      /* Safari 14–15 fix */
+      transform-box:fill-box;
+    }
     .mermaid g.node:hover rect{stroke-width:3px!important;}
-    .mermaid g.node:hover text,
-    .mermaid g.node:hover tspan{font-weight:600!important;}
 
     /* ---- “selected” class (after click) ---- */
     .node-selected rect,
@@ -214,42 +219,3 @@
           method:'POST',headers:{'Content-Type':'application/json'},
           body:JSON.stringify({selected_text:selectedText,question:q,original_query:currentQuery})
         });
-        const data=await r.json();
-        if(!data.success) throw new Error(data.detail||'Unknown error');
-
-        respDiv.innerHTML=`
-          <h3>Deep Dive: ${selectedText}</h3>
-          <div class="question">Q: ${q}</div>
-          <div class="answer">${data.response}</div>`;
-        document.getElementById('deepDiveQuery').value='';
-      }catch(err){
-        respDiv.innerHTML=`<div style="color:#f66;">Error: ${err.message}</div>`;
-      }
-    }
-
-    /* ---------- arrow styling helper ---------- */
-    function forceArrowVisibility(container){
-      const svg=container.querySelector('svg'); if(!svg) return;
-      /* lines */
-      svg.querySelectorAll('path').forEach(p=>{
-        const d=p.getAttribute('d')||'';
-        if(d.includes('M')&&d.includes('L')){
-          p.setAttribute('stroke','#000');p.setAttribute('stroke-width','4');
-          p.setAttribute('fill','none');
-          p.style.filter='drop-shadow(0 0 3px rgba(255,255,255,.9))';
-        }
-      });
-      /* arrowheads */
-      svg.querySelectorAll('marker path,marker polygon').forEach(m=>{
-        m.setAttribute('fill','#000');m.setAttribute('stroke','#fff');m.setAttribute('stroke-width','2');
-      });
-      /* polylines */
-      svg.querySelectorAll('polyline').forEach(pl=>{
-        pl.setAttribute('stroke','#000');pl.setAttribute('stroke-width','4');
-        pl.setAttribute('fill','none');
-        pl.style.filter='drop-shadow(0 0 3px rgba(255,255,255,.9))';
-      });
-    }
-  </script>
-</body>
-</html>
