@@ -139,11 +139,20 @@ button {
   filter: drop-shadow(0 0 3px rgba(255,255,255,.9)) !important;
 }
 
-/* ---- Reserve space by using slightly smaller font size normally ---- */
+/* ---- Add padding to all node shapes ---- */
+.mermaid rect,
+.mermaid circle,
+.mermaid ellipse,
+.mermaid polygon {
+  padding: 8px !important;
+}
+
+/* ---- Ensure text has proper spacing within nodes ---- */
+.mermaid .nodeLabel,
 .mermaid text,
-.mermaid tspan,
-.mermaid .nodeLabel {
-  font-size: 12px !important; /* Slightly smaller default */
+.mermaid tspan {
+  padding: 4px 8px !important;
+  margin: 4px !important;
 }
 
 .mermaid .edgePath path,
@@ -175,9 +184,9 @@ button {
 .mermaid g.node:hover text,
 .mermaid g.node:hover tspan,
 .mermaid g.node:hover .nodeLabel {
-  /* Increase font size on hover instead of bold to fill the reserved space */
-  font-size: 13px !important;
-  text-shadow: 1px 1px 2px rgba(255,255,255,.8), 0 0 1px rgba(0,0,0,0.8) !important;
+  /* Use text shadow for emphasis instead of bold to avoid width changes */
+  text-shadow: 1px 1px 2px rgba(255,255,255,.8), 0 0 1px rgba(0,0,0,0.8), 0 0 2px rgba(0,0,0,0.6) !important;
+  font-weight: 500 !important; /* Keep consistent weight */
 }
 
 /* ---- "selected" class (after click) ---- */
