@@ -135,58 +135,8 @@ button {
   text-shadow: 1px 1px 2px rgba(255,255,255,.8) !important;
 }
 
-/* ---- mermaid tweaks: arrows and fonts ---- */
-.mermaid text {
-  cursor: text;
-  user-select: text;
-  text-shadow: 1px 1px 2px rgba(255,255,255,.8) !important;
-}
-
-/* Force flowchart nodes to expand to fit content */
-.mermaid .node rect {
-  height: auto !important;
-  min-height: 40px !important;
-}
-
-.mermaid .node {
-  max-width: none !important;
-}
-
-.mermaid .label {
-  max-width: 300px !important;
-  white-space: normal !important;
-}
-
-/* Ensure text wraps properly in flowchart nodes */
-.mermaid .flowchart-label {
-  white-space: pre-wrap !important;
-  word-wrap: break-word !important;
-  max-width: 200px !important;
-}
-
-.mermaid foreignObject {
-  overflow: visible !important;
-  height: auto !important;
-}
-
 .mermaid .nodeLabel {
   filter: drop-shadow(0 0 3px rgba(255,255,255,.9)) !important;
-  display: inline-block !important;
-  white-space: pre-wrap !important;
-  max-width: 250px !important;
-  padding: 6px 10px !important;  /* Moderate padding - not too big */
-  line-height: 1.3 !important;
-  margin: 2px !important;  /* Small margin as buffer */
-}
-
-/* Reserve space for hover state to prevent text shifting */
-.mermaid .node text {
-  letter-spacing: 0.2px !important;  /* Slight spacing to accommodate hover */
-}
-
-/* On hover, remove letter spacing to compensate for color change */
-.mermaid g.node:hover text {
-  letter-spacing: 0 !important;
 }
 
 .mermaid .edgePath path,
@@ -210,23 +160,14 @@ button {
   filter: drop-shadow(0 0 2px rgba(255,255,255,.9)) !important;
 }
 
-/* ---- hover highlight with Option 6 (no text boldening) ---- */
-.mermaid g.node {
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
+/* ---- hover highlight *without* scaling the node ---- */
 .mermaid g.node:hover rect {
-  fill: #f0f8ff !important;  /* Very light blue */
-  stroke: #4169e1 !important;  /* Royal blue border */
   stroke-width: 3px !important;
-  filter: drop-shadow(0 0 6px rgba(65, 105, 225, 0.4));
 }
 
-/* Keep text normal weight but change color */
-.mermaid g.node:hover text {
-  fill: #1a237e !important;  /* Darker blue text */
-  /* No font-weight change - prevents text overflow */
+.mermaid g.node:hover text,
+.mermaid g.node:hover tspan {
+  font-weight: 600 !important;
 }
 
 /* ---- "selected" class (after click) ---- */
