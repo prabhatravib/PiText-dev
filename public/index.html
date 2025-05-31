@@ -16,7 +16,7 @@
       background:#000 url("/PiText_background.png") center/100% auto no-repeat fixed;
       color:#f0f0f0;font-family:sans-serif;margin:2rem;text-align:center;min-height:100vh;
     }
-    h1{margin-bottom:2rem;color:#fff;text-shadow:0 0 8px rgba(0,0,0,.8);}    
+    h1{margin-bottom:2rem;color:#fff;text-shadow:0 0 8px rgba(0,0,0,.8);}
     input{padding:.5rem;font-size:1rem;width:300px;margin-right:.5rem;}
     button{padding:.5rem 1rem;font-size:1rem;cursor:pointer;}
     #result{
@@ -31,18 +31,18 @@
       background:rgba(0,0,0,.8);color:#fff;border-radius:8px;max-width:600px;font-size:14px;
     }
     .selection-indicator.active{display:block;}
-    .selection-display{margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid rgba(255,255,255,.3);}    
+    .selection-display{margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid rgba(255,255,255,.3);}
     .deep-dive-input{display:flex;gap:.5rem;align-items:center;}
     .deep-dive-input input{
       flex:1;padding:.5rem;font-size:14px;background:rgba(255,255,255,.1);
       border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:4px;
     }
-    .deep-dive-input input::placeholder{color:rgba(255,255,255,.6);}    
+    .deep-dive-input input::placeholder{color:rgba(255,255,255,.6);}
     .deep-dive-input button{
       padding:.5rem 1rem;font-size:14px;background:rgba(255,255,255,.2);color:#fff;
       border:1px solid rgba(255,255,255,.3);border-radius:4px;transition:background .2s;
     }
-    .deep-dive-input button:hover{background:rgba(255,255,255,.3);}    
+    .deep-dive-input button:hover{background:rgba(255,255,255,.3);}
 
     /* ---- deep-dive response ---- */
     .deep-dive-response{
@@ -52,7 +52,7 @@
     .deep-dive-response.active{display:block;}
     .deep-dive-response h3{margin:0 0 .5rem;font-size:16px;}
     .deep-dive-response .question{font-style:italic;margin-bottom:1rem;opacity:.8;}
-    .deep-dive-response .answer{white-space:pre-wrap;}    
+    .deep-dive-response .answer{white-space:pre-wrap;}
 
     /* ---- mermaid tweaks: arrows and fonts ---- */
     .mermaid text{cursor:text;user-select:text;text-shadow:1px 1px 2px rgba(255,255,255,.8)!important;}
@@ -73,14 +73,10 @@
       filter:drop-shadow(0 0 2px rgba(255,255,255,.9))!important;
     }
 
-    /* ---- node-hover feedback: scale the whole group ---- */
+    /* ---- hover highlight *without* scaling the node ---- */
     .mermaid g.node:hover rect{stroke-width:3px!important;}
-    .mermaid g.node:hover{
-      transform:scale(1.08);
-      transform-origin:center;
-      transition:transform 120ms;
-      transform-box:fill-box; /* Safari 14–15 */
-    }
+    .mermaid g.node:hover text,
+    .mermaid g.node:hover tspan{font-weight:600!important;}
 
     /* ---- “selected” class (after click) ---- */
     .node-selected rect,
@@ -113,100 +109,147 @@
 
   <!-- ==========  JS ========== -->
   <script>
-    /* ------------ Mermaid global setup ------------ */
     mermaid.initialize({ startOnLoad:false });
 
     /* ---------- state ---------- */
-    let selectedElement = null;  // currently highlighted SVG node/edge
-    let selectedText    = '';
-    let currentQuery    = '';
+    let selectedElement=null, selectedText='', currentQuery='';
 
     /* ---------- UI wiring ---------- */
-    document.getElementById('generateBtn').addEventListener('click', generateDiagram);
-    document.getElementById('askBtn').addEventListener('click', askAboutSelection);
-    document.getElementById('deepDiveQuery').addEventListener('keypress', e => {
-      if (e.key === 'Enter') askAboutSelection();
-    });
+    document.getElementById('generateBtn').onclick = generateDiagram;
+    document.getElementById('askBtn').onclick      = askAboutSelection;
+    document.getElementById('deepDiveQuery')
+            .addEventListener('keypress',e=>{ if(e.key==='Enter') askAboutSelection(); });
 
     /* ---------- generate diagram ---------- */
-    async function generateDiagram () {
-      const q   = document.getElementById('query').value.trim();
-      const res = document.getElementById('result');
-
-      if (!q) { res.textContent = 'Please enter a query.'; return; }
-      currentQuery = q;
+    async function generateDiagram(){
+      const q=document.getElementById('query').value.trim();
+      const res=document.getElementById('result');
+      if(!q){res.textContent='Please enter a query.';return;}
+      currentQuery=q;
       resetSelection();
 
-      res.textContent = 'Generating…';
+      res.textContent='Generating…';
+      try{
+        const r=await fetch('/describe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q})});
+        const data=await r.json();
+        if(!data.success) throw new Error(data.detail||'Unknown error');
 
-      try {
-        const r     = await fetch('/describe', {
-          method  : 'POST',
-          headers : { 'Content-Type': 'application/json' },
-          body    : JSON.stringify({ query: q })
-        });
-        const data  = await r.json();
-        if (!data.success) throw new Error(data.detail || 'Unknown error');
+        res.innerHTML=`<div class="mermaid">${data.diagram}</div>`;
+        mermaid.init(undefined,res.querySelector('.mermaid'));
 
-        // Inject Mermaid code and render
-        res.innerHTML = `<div class="mermaid">${data.diagram}</div>`;
-        mermaid.init(undefined, res.querySelector('.mermaid'));
-
-        // Wait one tick so the SVG is in the DOM, then post‑process
-        setTimeout(() => {
-          forceArrowVisibility(res);
-          setupTextSelection(res);
-        }, 50);
-      }
-      catch (err) {
-        res.textContent = `Error: ${err.message}`;
-      }
+        /* wait a tick so SVG exists, then post-process */
+        setTimeout(()=>{forceArrowVisibility(res);setupTextSelection(res);},50);
+      }catch(err){res.textContent=`Error: ${err.message}`;}
     }
 
     /* ---------- node / edge clicks ---------- */
-    function setupTextSelection (container) {
-      const svg = container.querySelector('svg');
-      if (!svg) return;
+    function setupTextSelection(container){
+      const svg=container.querySelector('svg'); if(!svg) return;
 
-      // Node click
-      svg.querySelectorAll('g.node').forEach(node => {
-        node.style.cursor = 'pointer';
-        node.addEventListener('click', () => {
-          selectElement(node, extractNodeText(node));
-        });
+      /* node click */
+      svg.querySelectorAll('g.node').forEach(node=>{
+        node.style.cursor='pointer';
+        node.onclick=()=>{
+          selectElement(node,extractNodeText(node));
+        };
       });
 
-      // Edge‑label click
-      svg.querySelectorAll('.edgeLabel').forEach(lbl => {
-        lbl.style.cursor = 'pointer';
-        lbl.addEventListener('click', e => {
+      /* edge-label click */
+      svg.querySelectorAll('.edgeLabel').forEach(lbl=>{
+        lbl.style.cursor='pointer';
+        lbl.onclick=e=>{
           e.stopPropagation();
-          selectElement(lbl, lbl.textContent.trim());
-        });
+          selectElement(lbl,lbl.textContent.trim());
+        };
       });
 
-      // Blank click clears selection
-      svg.addEventListener('click', e => {
-        if (e.target === svg) resetSelection();
-      });
+      /* blank click clears selection */
+      svg.onclick=e=>{
+        if(e.target===svg){
+          resetSelection();
+        }
+      };
     }
 
-    function selectElement (el, text) {
-      if (selectedElement) selectedElement.classList.remove('node-selected');
+    function selectElement(el,text){
+      if(selectedElement) selectedElement.classList.remove('node-selected');
       el.classList.add('node-selected');
-      selectedElement = el;
-      selectedText    = text || '';
-
-      document.getElementById('selectedText').textContent = selectedText;
+      selectedElement=el; selectedText=text||'';
+      document.getElementById('selectedText').textContent=selectedText;
       document.getElementById('selectionIndicator').classList.add('active');
       document.getElementById('deepDiveQuery').focus();
     }
 
-    function resetSelection () {
-      if (selectedElement) selectedElement.classList.remove('node-selected');
-      selectedElement = null;
-      selectedText    = '';
-
+    function resetSelection(){
+      if(selectedElement) selectedElement.classList.remove('node-selected');
+      selectedElement=null; selectedText='';
       document.getElementById('selectionIndicator').classList.remove('active');
-      document.getElementById('deepDiveQuery').value = '';
-      document.getElementById('deepDiveResponse').classList.remove('
+      document.getElementById('deepDiveQuery').value='';
+      document.getElementById('deepDiveResponse').classList.remove('active');
+    }
+
+    /* extract text inside a node */
+    function extractNodeText(node){
+      let t=''; const textEl=node.querySelector('text');
+      if(textEl){
+        const ts=textEl.querySelectorAll('tspan');
+        t=ts.length?Array.from(ts).map(x=>x.textContent.trim()).filter(Boolean).join(' '):textEl.textContent.trim();
+      }
+      if(!t){
+        const lbl=node.querySelector('.nodeLabel'); if(lbl) t=lbl.textContent.trim();
+      }
+      return t;
+    }
+
+    /* ---------- deep-dive ---------- */
+    async function askAboutSelection(){
+      const q=document.getElementById('deepDiveQuery').value.trim();
+      if(!q||!selectedText) return;
+      const respDiv=document.getElementById('deepDiveResponse');
+      respDiv.innerHTML='<div>Thinking…</div>';
+      respDiv.classList.add('active');
+
+      try{
+        const r=await fetch('/deep-dive',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({selected_text:selectedText,question:q,original_query:currentQuery})
+        });
+        const data=await r.json();
+        if(!data.success) throw new Error(data.detail||'Unknown error');
+
+        respDiv.innerHTML=`
+          <h3>Deep Dive: ${selectedText}</h3>
+          <div class="question">Q: ${q}</div>
+          <div class="answer">${data.response}</div>`;
+        document.getElementById('deepDiveQuery').value='';
+      }catch(err){
+        respDiv.innerHTML=`<div style="color:#f66;">Error: ${err.message}</div>`;
+      }
+    }
+
+    /* ---------- arrow styling helper ---------- */
+    function forceArrowVisibility(container){
+      const svg=container.querySelector('svg'); if(!svg) return;
+      /* lines */
+      svg.querySelectorAll('path').forEach(p=>{
+        const d=p.getAttribute('d')||'';
+        if(d.includes('M')&&d.includes('L')){
+          p.setAttribute('stroke','#000');p.setAttribute('stroke-width','4');
+          p.setAttribute('fill','none');
+          p.style.filter='drop-shadow(0 0 3px rgba(255,255,255,.9))';
+        }
+      });
+      /* arrowheads */
+      svg.querySelectorAll('marker path,marker polygon').forEach(m=>{
+        m.setAttribute('fill','#000');m.setAttribute('stroke','#fff');m.setAttribute('stroke-width','2');
+      });
+      /* polylines */
+      svg.querySelectorAll('polyline').forEach(pl=>{
+        pl.setAttribute('stroke','#000');pl.setAttribute('stroke-width','4');
+        pl.setAttribute('fill','none');
+        pl.style.filter='drop-shadow(0 0 3px rgba(255,255,255,.9))';
+      });
+    }
+  </script>
+</body>
+</html>
