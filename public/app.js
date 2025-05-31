@@ -44,32 +44,57 @@ function addDiagramUtilities(diagramHost) {                        // >>> NEW <<
   };
 
   // --- Download PNG ----------------------------------------------
-  const saveBtn = document.createElement('button');
-  saveBtn.textContent = 'Save PNG';
-  saveBtn.onclick = () => {
-    const svg = diagramHost.querySelector('svg');
-    if (!svg) return;
+// --- Download high-res PNG ----------------------------------------------
+const saveBtn = document.createElement('button');
+saveBtn.textContent = 'Save PNG';
+saveBtn.onclick = () => {
+  const svg = diagramHost.querySelector('svg');
+  if (!svg) return;
 
-    const svgTxt  = new XMLSerializer().serializeToString(svg);
-    const svgBlob = new Blob([svgTxt], { type: 'image/svg+xml;charset=utf-8' });
-    const url     = URL.createObjectURL(svgBlob);
-    const img     = new Image();
+  // ----- 1. clone SVG so we can edit size safely -----------------
+  const clone   = svg.cloneNode(true);
+  const viewBox = (clone.getAttribute('viewBox') || '').split(' ').map(Number);
+  let   vbW, vbH;
 
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width  = img.width;
-      canvas.height = img.height;
-      canvas.getContext('2d').drawImage(img, 0, 0);
-      URL.revokeObjectURL(url);
+  if (viewBox.length === 4) {
+    vbW = viewBox[2];
+    vbH = viewBox[3];
+  } else {
+    // fall-back if there is no viewBox
+    const bbox = svg.getBBox();
+    vbW = bbox.width;
+    vbH = bbox.height;
+    clone.setAttribute('viewBox', `0 0 ${vbW} ${vbH}`);
+  }
 
-      canvas.toBlob(blob => {
-        const a = document.createElement('a');
-        a.href      = URL.createObjectURL(blob);
-        a.download  = 'flowchart.png';
-        a.click();
-        setTimeout(() => URL.revokeObjectURL(a.href), 250);
-      }, 'image/png');
-    };
+  // ----- 2. upscale – change width/height before serialising ----
+  const SCALE  = 4;                           // <-- change if you want 2×, 3×, 5× …
+  clone.setAttribute('width',  vbW * SCALE);
+  clone.setAttribute('height', vbH * SCALE);
+
+  const svgTxt  = new XMLSerializer().serializeToString(clone);
+  const svgBlob = new Blob([svgTxt], { type: 'image/svg+xml;charset=utf-8' });
+  const url     = URL.createObjectURL(svgBlob);
+
+  // ----- 3. rasterise -----------------------------------------------------
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width  = vbW * SCALE;
+    canvas.height = vbH * SCALE;
+    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+    URL.revokeObjectURL(url);
+
+    canvas.toBlob(blob => {
+      const a   = document.createElement('a');
+      a.href     = URL.createObjectURL(blob);
+      a.download = 'flowchart.png';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 250);
+    }, 'image/png');
+  };
+  img.src = url;
+};
 
     img.src = url;
   };
