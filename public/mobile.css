@@ -1,6 +1,4 @@
-/* ==== PiText Mobile-First Modern CSS ==== */
-
-/* -- Safe Area for iOS/Android Notch -- */
+/* ---- PiText Modern Mobile Layout ---- */
 @supports (padding: max(0px)) {
   body {
     padding-top: max(20px, env(safe-area-inset-top));
@@ -10,169 +8,230 @@
   }
 }
 
-/* -- Universal dark background -- */
-body {
-  background: #000 !important;
-  color: #fff;
-  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-  margin: 0;
-  min-height: 100vh;
-  text-align: center;
-}
-
-/* -- Title/Header -- */
-h1 {
-  font-size: 2.25rem;
-  font-weight: 700;
-  margin: 1.5rem 0 1rem 0;
-  letter-spacing: -1px;
-  text-shadow: 0 2px 8px #0008;
-}
-
-/* ==== MODERN INPUT & BUTTON STYLES ==== */
-input#query,
-button#generateBtn {
-  background: #1a1a1a;
-  border: 2px solid #444;
-  color: #fff;
-  border-radius: 22px;
-  font-size: 2rem;
-  padding: 1.25rem 1.5rem;
-  width: 100%;
-  box-sizing: border-box;
-  margin: 0 0 1.1rem 0;
-  text-align: center;
-  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-  outline: none;
-  appearance: none;
-  -webkit-appearance: none;
-}
-
-/* -- Button hover/active/focus -- */
-button#generateBtn:hover,
-button#generateBtn:focus {
-  border-color: #fff;
-  background: #222;
-  cursor: pointer;
-}
-
-/* -- Input focus effect -- */
-input#query:focus {
-  border-color: #fff;
-  box-shadow: 0 0 0 2px #333;
-}
-
-/* -- Remove tap highlight on mobile -- */
-* {
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* ==== RESULT/DIALOG CARD ==== */
-#result {
-  background: rgba(22,22,22,0.95);
-  border-radius: 18px;
-  box-shadow: 0 6px 32px rgba(0,0,0,0.35);
-  margin: 1.1rem 0 0 0;
-  padding: 1.2rem 0.7rem 1.8rem 0.7rem;
-  min-height: 44vh;
-  max-height: 80vh;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  position: relative;
-}
-
-/* ==== DIAGRAM AREA ==== */
-.mermaid {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  max-width: 100%;
-  margin: 0 auto;
-}
-
-/* Responsive diagram text for mobile */
-.mermaid text {
-  font-size: clamp(13px, 2vw, 19px) !important;
-  fill: #fff !important;
-}
-
-/* ==== Utility Buttons (Copy, Save) ==== */
-.diagram-utils,
-.deep-utils {
-  position: absolute;
-  top: 1.1rem;
-  right: 1.1rem;
-  display: flex;
-  gap: 0.7rem;
-  background: rgba(0,0,0,0.3);
-  border-radius: 8px;
-  padding: 0.2rem 0.6rem;
-  z-index: 5;
-}
-
-.diagram-utils button,
-.deep-utils button {
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 1.5rem;
-  padding: 0.3rem 0.5rem;
-  border-radius: 6px;
-  transition: background 0.13s;
-}
-.diagram-utils button:active,
-.deep-utils button:active {
-  background: #222a;
-}
-
-/* ==== Error Message ==== */
-.error-message {
-  background: #330;
-  color: #fff;
-  border-radius: 16px;
-  padding: 1.2rem;
-  margin: 1.3rem 0;
-  font-size: 1.15rem;
-}
-
-/* ==== Mobile Layout Adjustments ==== */
 @media (max-width: 768px) {
-  h1 {
-    font-size: 1.65rem;
-    margin: 1rem 0 0.75rem 0;
-    padding: 0 1rem;
+  body {
+    margin: 0;
+    background: #000 !important;
+    background-size: cover;
+    background-attachment: scroll;
+    color: #fff;
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    min-height: 100vh;
+    text-align: center;
   }
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 1.2rem 0 1rem 0;
+    letter-spacing: -1px;
+    text-shadow: 0 2px 8px #0008;
+  }
+
+  /* Input and Generate button, matching your modern style */
   input#query,
   button#generateBtn {
-    font-size: 1.2rem;
-    padding: 0.9rem 1.1rem;
-    margin-bottom: 0.85rem;
+    background: #1a1a1a;
+    border: 2px solid #fff;
+    color: #fff;
+    border-radius: 22px;
+    font-size: 1.6rem;
+    padding: 1rem 1.2rem;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0 0 1rem 0;
+    text-align: center;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    display: block;
   }
+
+  button#generateBtn:hover,
+  button#generateBtn:focus {
+    border-color: #fff;
+    background: #222;
+    cursor: pointer;
+  }
+  input#query:focus {
+    border-color: #fff;
+    box-shadow: 0 0 0 2px #333;
+  }
+
+  /* Input Area Layout */
+  .input-area {
+    flex-direction: column;
+    padding: 0 1rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Result/Diagram card */
   #result {
-    margin: 0.7rem 0 0 0;
-    padding: 1rem 0.3rem 1.3rem 0.3rem;
+    background: rgba(22,22,22,0.96);
+    border-radius: 18px;
+    box-shadow: 0 6px 32px rgba(0,0,0,0.35);
+    margin: 1rem 0 0 0;
+    padding: 1.1rem 0.6rem 1.4rem 0.6rem;
+    min-height: 42vh;
+    max-height: 80vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+  }
+
+  /* Mermaid Diagram Responsive */
+  .mermaid {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+  .mermaid svg {
+    max-width: none !important;
+    height: auto !important;
+    min-width: 100%;
+  }
+  .mermaid text {
+    font-size: clamp(13px, 2vw, 19px) !important;
+    fill: #fff !important;
+  }
+
+  /* Utility Buttons (Copy, Save) in top right of #result */
+  .diagram-utils,
+  .deep-utils {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    gap: 0.7rem;
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+    padding: 0.2rem 0.6rem;
+    z-index: 5;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .diagram-utils button,
+  .deep-utils button {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.35rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    transition: background 0.13s;
+    min-height: 40px;
+  }
+  .diagram-utils button:active,
+  .deep-utils button:active {
+    background: #222a;
+  }
+
+  /* Error Message */
+  .error-message {
+    padding: 1rem;
+    min-height: 200px;
+    background: #2a1a1a;
+    color: #fff;
+    border-radius: 16px;
+    margin: 1.3rem 0;
+    font-size: 1.05rem;
+  }
+
+  .error-icon {
+    font-size: 36px;
+  }
+  .error-text {
+    font-size: 16px;
+    padding: 0 1rem;
+  }
+  .retry-btn {
+    width: 80%;
+    max-width: 200px;
+  }
+
+  /* Deep-dive, selection, etc. */
+  .selection-indicator {
+    margin: 1rem;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+    border-radius: 16px 16px 0 0;
+    padding: 1rem 1rem 2rem;
+    max-height: 50vh;
+    overflow-y: auto;
+    z-index: 100;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+  }
+  .deep-dive-input {
+    flex-direction: column;
+  }
+  .deep-dive-input input,
+  .deep-dive-input button {
+    width: 100%;
+    font-size: 16px;
+  }
+  .deep-dive-response {
+    margin: 1rem;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+    border-radius: 16px 16px 0 0;
+    max-height: 70vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    z-index: 101;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+  }
+
+  /* Touch Optimizations */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button, input, .mermaid g.node {
+    touch-action: manipulation;
+  }
+
+  /* Keyboard Handling */
+  input:focus {
+    outline: none;
+    border-color: rgba(255,255,255,.6);
+  }
+  @media (max-height: 500px) {
+    .selection-indicator,
+    .deep-dive-response {
+      position: relative;
+      margin: 1rem;
+      border-radius: 8px;
+    }
   }
 }
 
-/* ==== Extra Small Screens (SE/5) ==== */
+/* Small iPhone SE/5 */
 @media (max-width: 350px) {
   h1 { font-size: 1.15rem; }
   input#query, button#generateBtn { font-size: 1rem; padding: 0.7rem 0.7rem; }
   #result { padding: 0.7rem 0.1rem 1rem 0.1rem; }
 }
 
-/* ==== Landscape Mobile ==== */
+/* Landscape Mobile */
 @media (max-width: 768px) and (orientation: landscape) {
   h1 { font-size: 1.1rem; }
   #result { min-height: 30vh; max-height: 60vh; }
+  .selection-indicator,
+  .deep-dive-response {
+    max-height: 80vh;
+  }
 }
 
-/* ==== Reduce Motion ==== */
+/* Reduce Motion for Accessibility */
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
-}
-
-/* ==== Dark Mode (already dark, but keep for safety) ==== */
-@media (prefers-color-scheme: dark) {
-  body { background: #000; color: #fff; }
-  input#query, button#generateBtn { background: #1a1a1a; color: #fff; }
 }
